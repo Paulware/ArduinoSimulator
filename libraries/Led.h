@@ -9,7 +9,6 @@ class Led:Component
     Led(); 
     // Destructor
     ~Led();
-    void Draw ();
     HINSTANCE g_hInst; 
     HWND DrawWindow (char * title, HINSTANCE hInst, int x , int y);   
     void Paint(HWND hWnd);                      

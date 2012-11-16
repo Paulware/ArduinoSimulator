@@ -1,12 +1,12 @@
 #include "ArduinoComponent.h"
 // 14 Digitals plus 6 analogs can also be used
-#define MAX_DIGITALS 20
-
 ArduinoComponent::ArduinoComponent(): Component()
 { 
   gnd = new Pin(this);
   gnd->WriteValue (0,true);
-  for (int i=0; i<MAX_DIGITALS; i++)
+  power = new Pin (this);
+  power->WriteValue (1,true);
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
   {
     d[i] = new Pin(this);  
     d[i]->WriteValue (0,true );
@@ -26,46 +26,55 @@ ArduinoComponent::ArduinoComponent(): Component()
   digitalValues[11] = (digitalInfo) {250,8,false};
   digitalValues[12] = (digitalInfo) {234,8,false};
   digitalValues[13] = (digitalInfo) {218,8,false};
-  strcpy(BCX_ClassName,"ListBox1");
+  digitalValues[14] = (digitalInfo) {357,317,false}; 
+  digitalValues[15] = (digitalInfo) {373,317,false}; 
+  digitalValues[16] = (digitalInfo) {389,317,false}; 
+  digitalValues[17] = (digitalInfo) {405,317,false}; 
+  digitalValues[18] = (digitalInfo) {421,317,false}; 
+  digitalValues[19] = (digitalInfo) {437,317,false}; 
 }
 
 ArduinoComponent::~ArduinoComponent()
 {
-  if (gnd)
-    delete (gnd);
-  for (int i=0; i<MAX_DIGITALS; i++)
+  delete (gnd);
+  delete (power);
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
     delete (d[i]);
 }
 
 void ArduinoComponent::Paint(HWND hWnd)
 {
-   int x,y;
-   PAINTSTRUCT ps;
-   HDC hdcWindow;
-   HDC hdcMemory;
+  int x,y;
+  PAINTSTRUCT ps;
+  HDC hdcWindow;
+  HDC hdcMemory;
    
-   Component::Paint (hWnd, hdcWindow, hdcMemory, ps); // Show Arduino image    
+  if (hWnd == windowHandle)
+  {
    
-   // Show image of digitalValues
-   for (int i=0; i<14; i++)
-   {
-     x = digitalValues[i].x;
-     y = digitalValues[i].y;
-     if (digitalValues[i].blackRed)  
-       SelectObject(hdcMemory, hbmRedDot);
-     else
-       SelectObject(hdcMemory, hbmBlackDot);
-     BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-     BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
-   }
+    Component::Paint (hWnd, hdcWindow, hdcMemory, ps); // Show Arduino image    
    
-   Component::PaintEnd ( &hdcMemory, hWnd, &ps);  
+    // Show image of digitalValues
+    for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+    {  
+      x = digitalValues[i].x;
+      y = digitalValues[i].y;
+      if (digitalValues[i].blackRed)  
+        SelectObject(hdcMemory, hbmRedDot);
+      else
+        SelectObject(hdcMemory, hbmBlackDot);
+      BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
+      BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
+    }
+   
+    Component::PaintEnd ( &hdcMemory, hWnd, &ps);  
+  }  
 }
 
 void ArduinoComponent::digitalWrite (int pin, int value )
 {
   digitalValues[pin].blackRed = (bool) value;
-  if ((pin >= 0) && (pin < MAX_DIGITALS))
+  if ((pin >= 0) && (pin < MAX_DIGITAL_VALUES))
     d[pin]->WriteValue (value,true);
     
   Component::Refresh();
@@ -79,6 +88,7 @@ HWND ArduinoComponent::DrawWindow(char * title, HINSTANCE hInst,
    // Load additional bitmaps   
    Component::LoadBMap ("REDDOT", hbmRedDot, bmRedDot);
    Component::LoadBMap ("BLACKDOT", hbmBlackDot, bmBlackDot); 
+   
    return hWnd;
 }
 

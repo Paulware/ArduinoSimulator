@@ -1,6 +1,7 @@
 #ifndef PIN_H
 #define PIN_H
 #include "Component.h"
+#define MAX_PIN_CONNECTIONS 10
 class Pin
 {
   public:          
@@ -13,8 +14,9 @@ class Pin
 
   private:
     int value;
-    Pin * connectedTo;
+    Pin * connectedTo[MAX_PIN_CONNECTIONS];
     Component * parent;
+    int numConnections;
 };
 
 #endif

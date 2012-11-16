@@ -6,6 +6,8 @@
 #include "ArduinoComponent.h"
 #include "HighLevelMenu.h"
 #include "KeyboardMonitor.h"
+#include "MomentaryDepress.h"
+#include "SevenSeg.h"
 
 #define ID_Exit 101
 #define ID_Edit 201
@@ -15,7 +17,7 @@
 
 #define MYCLASS "ListBox1"
 
-static char   text[2048];
+// static char   text[2048];
 static HINSTANCE BCX_hInstance = NULL;
 static HINSTANCE g_hInst = NULL;
 
@@ -32,8 +34,11 @@ KeyboardMonitor keyboardMonitor;
 ArduinoComponent arduino;
 Led led1;
 Led led2;
+Led led3;
+MomentaryDepress switch1;
+SevenSeg number1;
 
-/* Definitions of Arduino utilities */
+/* Definitions of Arduino utilities/externals */
 char pgm_read_byte ( char * ch) {return *ch;};
 unsigned long millisValue = 0;
 unsigned long millis() { 
@@ -46,6 +51,21 @@ void digitalWrite (int pin, int value )
 {
   arduino.digitalWrite ( pin, value );   
 }
+void pinMode (int pin, int mode)
+{
+  int p = pin;
+}
+int bitRead ( unsigned int value, int bit )
+{
+  int val = 0;
+  unsigned int values[] = {
+    1,     2,     4,     8,     0x10, 0x20, 0x40, 0x80, 
+    0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x4000, 0x8000 };
+    
+  if (value & values[bit]) 
+    val = 1;
+  return val;                
+}
 
 #include "serialBasic.ino" // Code under test
 
@@ -54,13 +74,51 @@ void digitalWrite (int pin, int value )
 void VirtualBreadBoard (HINSTANCE hInst)
 {
   arduino.gnd->Connect(led1.gnd );
-  led1.gnd->Connect(led2.gnd);
+  led1.gnd->WriteValue (0,false);
   arduino.d[6]->Connect (led1.power);
   arduino.d[5]->Connect (led2.power);
+  switch1.input->Connect (arduino.power);
+  switch1.output->Connect (led3.power);
+  led2.gnd->Connect(led3.gnd);
+  number1.gnd ->WriteValue (0,false);
+  
+  arduino.d[7]->Connect  ( number1.segment[0]);
+  arduino.d[8]->Connect  ( number1.segment[1]);
+  arduino.d[9]->Connect  ( number1.segment[2]);
+  arduino.d[10]->Connect ( number1.segment[3]);
+  arduino.d[11]->Connect ( number1.segment[4]);
+  arduino.d[12]->Connect ( number1.segment[5]);
+  arduino.d[13]->Connect ( number1.segment[6]);
+  
 
-  // Draw the additional components 
-  led1.DrawWindow ( "Led 1", hInst, 500, 10);
-  led2.DrawWindow ( "Led 2", hInst, 675, 10);
+  // Draw the additional components (Arduino is drawn in WinMain)
+  led1.DrawWindow    ("Led 1",   hInst, 500, 10);
+  led2.DrawWindow    ("Led 2",   hInst, 675, 10);
+  led3.DrawWindow    ("Led 3",   hInst, 850, 10);
+  switch1.DrawWindow ("Sw1", hInst, 1025,10);
+  number1.DrawWindow ("Segment1", hInst, 1025,150);
+}
+
+// Note: component needs to be added here to be displayed
+void PaintComponents(HWND hWnd)
+{
+  // Draw all components
+  arduino.Paint (hWnd);
+  led1.Paint (hWnd);
+  led2.Paint (hWnd);
+  led3.Paint (hWnd);
+  switch1.Paint (hWnd);
+  number1.Paint (hWnd);
+}
+
+void HandleMouseDown(HWND hWnd)
+{
+  switch1.HandleMouseDown (hWnd);
+}
+
+void HandleMouseUp(HWND hWnd)
+{
+  switch1.HandleMouseUp (hWnd);
 }
 
 // this is the main() function under Windows GUI
@@ -121,10 +179,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
       break;  
         
     case WM_PAINT:
-      // Draw all components
-      arduino.Paint (hWnd);
-      led1.Paint (hWnd);
-      led2.Paint (hWnd);
+      PaintComponents(hWnd);
       break;  
    
     case WM_TIMER:
@@ -133,6 +188,16 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
       
       loop(); // Call loop in the .ino file
       break;           
+      
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+      HandleMouseDown(hWnd);   
+      break;        
+      
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+      HandleMouseUp(hWnd);   
+      break;        
                 
     case WM_COMMAND:
       if (LOWORD (wParam) == 11) // Edit Dialog
@@ -176,12 +241,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
       break;  
         
       /*     
-      case WM_LBUTTONDOWN:
-        //SetWindowText(Form2,"Left button down");
-        break;        
-      case WM_RBUTTONDOWN:
-        //SetWindowText(Form2,"Right button down");
-        break;        
       case WM_KEYDOWN:
         break;  
       case WM_KEYUP:

@@ -2,8 +2,8 @@
 Pin::Pin(Component * _parent)
 { 
   value = -1;
-  connectedTo = 0;
   parent = _parent;
+  numConnections = 0;
 }
 
 
@@ -14,19 +14,32 @@ int Pin::GetValue ()
 
 void Pin::WriteValue(int val, bool recursive)
 {
-  value = val;
-  if (connectedTo && recursive)
-    connectedTo->WriteValue ( val, false);
+  
+  if (value != val) // This is a new value
+  {
+    value = val;
+    for (int i=0; i<numConnections; i++)
+      connectedTo[i]->WriteValue ( val, false);
+  }    
   parent->Refresh();  
 }
 
 void Pin::Connect( Pin * pin )
 {
-  if (!connectedTo)
-  {
-    connectedTo = pin;      // I'm connected to you
-    pin->Connect (this); // You are connected to me
-    if (value != -1)
+  bool found = false;
+  // Check if already connected
+  for (int i=0; i<numConnections; i++)
+    if (connectedTo[i] == pin)
+      found = true;
+  
+  // Only connect once    
+  if (!found)
+  {    
+    // I am connected to you
+    connectedTo[numConnections++] = pin;   
+    // You are connected to me
+    pin->Connect (this);
+    if (value != -1) // I already have a value
       pin->WriteValue (value, false );
-  }  
+  }    
 }

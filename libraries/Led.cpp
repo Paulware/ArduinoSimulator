@@ -18,29 +18,31 @@ Led::~Led()
 
 void Led::Paint(HWND hWnd)
 {
-   PAINTSTRUCT ps;
-   HDC hdcWindow;
-   HDC hdcMemory;
-   bool ledOn; 
-   int x = 31;
-   int y = 0;
+  PAINTSTRUCT ps;
+  HDC hdcWindow;
+  HDC hdcMemory;
+  bool ledOn; 
+  int x = 31;
+  int y = 0;
    
-   Component::Paint (hWnd, hdcWindow, hdcMemory, ps); // Show Arduino image    
+  if (hWnd == windowHandle)
+  {
+    Component::Paint (hWnd, hdcWindow, hdcMemory, ps); // Show Arduino image    
 
-   if (gnd->GetValue() || !power->GetValue())
-     ledOn = false;
-   else
-     ledOn = true;
-
-   if (ledOn)
-     SelectObject(hdcMemory, hbmRedDot);
-   else
-     SelectObject(hdcMemory, hbmBlackDot);
+    ledOn = false;
+    if ((gnd->GetValue() == 0) && (power->GetValue() == 1))
+      ledOn = true;
+      
+    if (ledOn)
+      SelectObject(hdcMemory, hbmRedDot);
+    else
+      SelectObject(hdcMemory, hbmBlackDot);
      
-   BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-   BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
+    BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
+    BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
 
-   Component::PaintEnd ( &hdcMemory, hWnd, &ps);  
+    Component::PaintEnd ( &hdcMemory, hWnd, &ps);
+  }    
 }
 
 HWND Led::DrawWindow(char * title, HINSTANCE hInst,  

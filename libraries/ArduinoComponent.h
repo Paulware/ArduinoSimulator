@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "Component.h"
 #include "Pin.h"
+#define MAX_DIGITAL_VALUES 20
 class ArduinoComponent:Component
 {
   public:          
@@ -10,8 +11,9 @@ class ArduinoComponent:Component
     ArduinoComponent(); 
     // Destructor
     ~ArduinoComponent();
+    Pin * power;
 	Pin * gnd;
-	Pin * d[20];
+	Pin * d[MAX_DIGITAL_VALUES];
     HWND DrawWindow (char * title, HINSTANCE hInst, int x , int y);
     void Paint (HWND);    
     void digitalWrite (int, int); 
@@ -34,8 +36,7 @@ class ArduinoComponent:Component
       int y;
       bool blackRed;     
     };
-    digitalInfo digitalValues[14];    
-    char   BCX_ClassName[2048];  // default size
+    digitalInfo digitalValues[MAX_DIGITAL_VALUES];    
 
 };
 
