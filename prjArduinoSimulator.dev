@@ -1,7 +1,7 @@
 [Project]
 FileName=prjArduinoSimulator.dev
 Name=prjArduinoSimulator
-UnitCount=22
+UnitCount=24
 Type=0
 Ver=1
 ObjFiles=
@@ -257,7 +257,27 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit22]
-FileName=libraries\SevenSegment.cpp
+FileName=..\arduino-1.0.1\libraries\ArduinoBASIC\SevenSegment.cpp
+CompileCpp=1
+Folder=prjArduinoSimulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit23]
+FileName=libraries\LCDDisplay.cpp
+CompileCpp=1
+Folder=prjArduinoSimulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit24]
+FileName=libraries\LiquidCrystal.h
 CompileCpp=1
 Folder=prjArduinoSimulator
 Compile=1

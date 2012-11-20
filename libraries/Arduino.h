@@ -23,3 +23,5 @@ extern int analogRead (int);
 extern float log (float);
 extern void pinMode (int, int);
 extern int bitRead (unsigned int, int);
+extern void lcdPrint ( char * ch );
+extern void lcdClear ();

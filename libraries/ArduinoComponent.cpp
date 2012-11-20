@@ -48,6 +48,7 @@ void ArduinoComponent::Paint(HWND hWnd)
   PAINTSTRUCT ps;
   HDC hdcWindow;
   HDC hdcMemory;
+  
    
   if (hWnd == windowHandle)
   {

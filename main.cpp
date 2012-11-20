@@ -8,6 +8,7 @@
 #include "KeyboardMonitor.h"
 #include "MomentaryDepress.h"
 #include "SevenSeg.h"
+#include "LCDDisplay.h"
 
 #define ID_Exit 101
 #define ID_Edit 201
@@ -37,6 +38,7 @@ Led led2;
 Led led3;
 MomentaryDepress switch1;
 SevenSeg number1;
+LCDDisplay lcdDisplay;
 
 /* Definitions of Arduino utilities/externals */
 char pgm_read_byte ( char * ch) {return *ch;};
@@ -66,6 +68,14 @@ int bitRead ( unsigned int value, int bit )
     val = 1;
   return val;                
 }
+void lcdPrint ( char * ch )
+{
+  lcdDisplay.print ( ch );
+}
+void lcdClear ()
+{
+  lcdDisplay.clearTheText = true;
+}
 
 #include "serialBasic.ino" // Code under test
 
@@ -92,11 +102,12 @@ void VirtualBreadBoard (HINSTANCE hInst)
   
 
   // Draw the additional components (Arduino is drawn in WinMain)
-  led1.DrawWindow    ("Led 1",   hInst, 500, 10);
-  led2.DrawWindow    ("Led 2",   hInst, 675, 10);
-  led3.DrawWindow    ("Led 3",   hInst, 850, 10);
-  switch1.DrawWindow ("Sw1", hInst, 1025,10);
-  number1.DrawWindow ("Segment1", hInst, 1025,150);
+  led1.DrawWindow       ("Led 1",    hInst,  500,  10);
+  led2.DrawWindow       ("Led 2",    hInst,  675,  10);
+  led3.DrawWindow       ("Led 3",    hInst,  850,  10);
+  switch1.DrawWindow    ("Sw1",      hInst, 1025,  10);
+  number1.DrawWindow    ("Segment1", hInst, 1025, 150);
+  lcdDisplay.DrawWindow ("Display1", hInst, 925, 300);
 }
 
 // Note: component needs to be added here to be displayed
@@ -109,6 +120,7 @@ void PaintComponents(HWND hWnd)
   led3.Paint (hWnd);
   switch1.Paint (hWnd);
   number1.Paint (hWnd);
+  lcdDisplay.Paint (hWnd);
 }
 
 void HandleMouseDown(HWND hWnd)
@@ -145,7 +157,7 @@ int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrev,LPSTR CmdLine,int CmdShow)
  // Draw all the windows
  (void) highLevelMenu.DrawWindow ( "High Level Menu", hInst, 20, 10);
  (void) keyboardMonitor.DrawWindow ( "Keyboard Monitor", hInst, 20,120);
- hWnd = arduino.DrawWindow ( "Simulated Arduino", hInst, 505, 245 );
+ hWnd = arduino.DrawWindow ( "Simulated Arduino", hInst, 455, 245 );
 
  // Connect the circui
  VirtualBreadBoard(hInst);

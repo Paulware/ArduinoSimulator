@@ -35,6 +35,7 @@ void Component::Paint(HWND hWnd, HDC &hdcWindow, HDC &hdcMemory, PAINTSTRUCT &ps
 {
        
   hdcWindow = BeginPaint(windowHandle, &ps);
+  
   hdcMemory = CreateCompatibleDC(hdcWindow);
   if (bitmapExists)
   {
