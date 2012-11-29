@@ -1,23 +1,39 @@
 #include "KeyboardMonitor.h"
 #include "windows.h"
 #include "SerialClass.h"
+#include "Menus.h"
+
 KeyboardMonitor::KeyboardMonitor():Component()
 { 
   hWndEdit = NULL;
 }
 
 
-void KeyboardMonitor::Paint(HWND hWnd)
+void KeyboardMonitor::Paint(HWND hWnd, HDC &hdcWindow, HDC &hdcMemory, PAINTSTRUCT &ps)
 {
-  PAINTSTRUCT ps;
-  HDC hdcWindow;
-  HDC hdcMemory;
    
-  Component::Paint (hWnd, hdcWindow, hdcMemory, ps); // Show Arduino image    
-  Component::PaintEnd ( &hdcMemory, hWnd, &ps);
+  Component::Paint (hWnd); // Show Arduino image    
+  // Component::PaintEnd ( &hdcMemory, hWnd, &ps);
 }
 
-HWND KeyboardMonitor::DrawWindow(char * title, HINSTANCE hInst, int x, int y)
+void KeyboardMonitor::AddMenu ()
+{
+  HMENU  MainMenu;
+  HMENU  FileMenu;
+     
+  //arduinoMain.setHwnd ( hwndOwner);
+  MainMenu=CreateMenu();
+  FileMenu=CreateMenu();
+  InsertMenu(MainMenu,ID_Edit,MF_POPUP,(UINT_PTR)FileMenu,"Help");
+  AppendMenu(FileMenu,MF_STRING,COMPONENT_ABOUT,"&About");
+  AppendMenu(FileMenu,MF_SEPARATOR,0,"");
+  AppendMenu(FileMenu,MF_STRING,COMPONENT_HELP,"&Component Help");
+  //  activate menu 
+  (void) SetMenu(windowHandle,MainMenu);
+}
+
+HWND KeyboardMonitor::DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
+                                  int x , int y, int width, int height)
 {                           
   HWND textHandle;
   HWND hWnd;

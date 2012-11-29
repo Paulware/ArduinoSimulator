@@ -2,27 +2,43 @@
 #define LCDDISPLAY_H
 #include "Component.h"
 #include "Pin.h"
+#define MAX_LCD_PINS 16
 
-class LCDDisplay:Component
+class LCDDisplay:public Component
 {
   public:          
     // Constructor
-    LCDDisplay(); 
+    LCDDisplay(int, int); 
     // Destructor
     ~LCDDisplay();
-    HINSTANCE g_hInst; 
-    HWND DrawWindow (char * title, HINSTANCE hInst, int x , int y);   
-    void Paint(HWND hWnd);   
+    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
+    void Paint(HWND hWnd);  
+    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );	 
     void print ( char * ch );                   
     void clear(HDC);
     bool clearTheText;
-    
+    void HandleMenu ( int command );
+    void AddMenu ();     
+    void HandleMouseMove (HWND hWnd, int _x, int _y);  
+    void HandleMouseDown (HWND hWnd, int _x, int _y);  
+    void MoveTo (int, int); 
+	Pin * PinActive(); 
+    Pin * PortSelected();
+  
   private:
     bool offOn;
-    int x;
-    int y;
     char screen[80];
     void showScreen(HDC hdcWindow);
+    Pin * pin[MAX_LCD_PINS];
+    
+    HBITMAP       hbmPinDot;
+    BITMAP        bmPinDot;
+    
+    HBITMAP       hbmRedDot;
+    BITMAP        bmRedDot;
+
+    HBITMAP       hbmBlackDot;
+    BITMAP        bmBlackDot;
 };
 
 #endif

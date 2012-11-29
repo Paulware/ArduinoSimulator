@@ -2,16 +2,25 @@
 #define SEVENSEG_H
 #include "Component.h"
 #include "Pin.h"
-class SevenSeg:Component
+class SevenSeg:public Component
 {
   public:          
     // Constructor
-    SevenSeg(); 
+    SevenSeg(int,int); 
     // Destructor
-    ~SevenSeg();
-    HINSTANCE g_hInst; 
-    HWND DrawWindow (char * title, HINSTANCE hInst, int x , int y);   
+    ~SevenSeg(); 
+    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );
+    HWND DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
+                     int x , int y, int width, int height);
+    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
     void Paint(HWND hWnd);                      
+    void AddMenu();
+    void HandleMenu ( int command );
+    void HandleMouseMove (HWND hWnd, int _x, int _y);  
+    Pin * PortSelected();
+    void HandleMouseDown (HWND hWnd, int _x, int _y);  
+    void MoveTo (int, int);  
+    Pin * PinActive ();      
     Pin * segment[7];
     Pin * gnd; // Common Ground
     

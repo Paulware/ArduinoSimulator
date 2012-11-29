@@ -1,14 +1,7 @@
+#ifndef ARDUINO_H
+#define ARDUINO_H
 #include "SerialClass.h"
 #include "stdlib.h"
-//typedef char boolean
-//#define PGM_P char *
-/* 
-typedef  char * PGM_P
-PGM_P * PSTR ( char * line) 
-{
-  return ( &line[0] ); 
-}
-*/
 #define PSTR (char *)
 #define PGM_P char *
 #define prog_char char
@@ -25,3 +18,4 @@ extern void pinMode (int, int);
 extern int bitRead (unsigned int, int);
 extern void lcdPrint ( char * ch );
 extern void lcdClear ();
+#endif

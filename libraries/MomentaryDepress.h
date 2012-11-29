@@ -2,18 +2,27 @@
 #define MOMENTARYDEPRESS_H
 #include "Component.h"
 #include "Pin.h"
-class MomentaryDepress:Component
+class MomentaryDepress:public Component
 {
   public:          
     // Constructor
-    MomentaryDepress(); 
+    MomentaryDepress(int _x, int _y); 
     // Destructor
     ~MomentaryDepress();
-    HINSTANCE g_hInst; 
-    HWND DrawWindow (char * title, HINSTANCE hInst, int x , int y);   
+    Pin * PortSelected ();    
+    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
     void Paint(HWND hWnd);
-    void HandleMouseDown (HWND hWnd);                      
-    void HandleMouseUp (HWND hWnd);                      
+    void HandleMouseDown (HWND hWnd, int _x, int _y);                      
+    void HandleMouseMove (HWND hWnd, int _x, int _y);                      
+    void HandleMouseUp (HWND hWnd); 
+	void HandleMenu(int command){};
+    void AddMenu ();       
+    void MoveTo (int, int);  
+    Pin * PinActive ();      
+    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap);
+    bool IsSet();
+    void Reset();
+
     Pin * input;
     Pin * output;
     

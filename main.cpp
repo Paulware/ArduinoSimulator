@@ -1,20 +1,16 @@
 #include <windows.h>
+
 #include "SerialClass.h"
 #include "EEPROM.h"
 #include <Wire.h>
-#include "Led.h"
+#include "ViewConnections.h"
 #include "ArduinoComponent.h"
 #include "HighLevelMenu.h"
 #include "KeyboardMonitor.h"
 #include "MomentaryDepress.h"
 #include "SevenSeg.h"
 #include "LCDDisplay.h"
-
-#define ID_Exit 101
-#define ID_Edit 201
-#define ID_Load 301
-#define ID_Save 302
-#define ID_Run  303
+#include "Menus.h"
 
 #define MYCLASS "ListBox1"
 
@@ -32,13 +28,7 @@ HighLevelMenu highLevelMenu;
 KeyboardMonitor keyboardMonitor;
 
 // Declare components
-ArduinoComponent arduino;
-Led led1;
-Led led2;
-Led led3;
-MomentaryDepress switch1;
-SevenSeg number1;
-LCDDisplay lcdDisplay;
+// ArduinoComponent arduino;
 
 /* Definitions of Arduino utilities/externals */
 char pgm_read_byte ( char * ch) {return *ch;};
@@ -51,7 +41,7 @@ int analogRead (int which){return 0;}
 float log (float value){return 0.0;}
 void digitalWrite (int pin, int value ) 
 {
-  arduino.digitalWrite ( pin, value );   
+  // arduino.digitalWrite ( pin, value ); // Todo call highlevelmenu digitalWrite
 }
 void pinMode (int pin, int mode)
 {
@@ -70,19 +60,20 @@ int bitRead ( unsigned int value, int bit )
 }
 void lcdPrint ( char * ch )
 {
-  lcdDisplay.print ( ch );
+  //lcdDisplay.print ( ch );
 }
 void lcdClear ()
 {
-  lcdDisplay.clearTheText = true;
+  //lcdDisplay.clearTheText = true;
 }
-
+HWND viewConnectionHandle = 0; // definition outside class declaration
 #include "serialBasic.ino" // Code under test
 
 // Connect the circuit and draw the components
 // TODO: Make a Gui for this?
 void VirtualBreadBoard (HINSTANCE hInst)
 {
+  /*
   arduino.gnd->Connect(led1.gnd );
   led1.gnd->WriteValue (0,false);
   arduino.d[6]->Connect (led1.power);
@@ -99,38 +90,32 @@ void VirtualBreadBoard (HINSTANCE hInst)
   arduino.d[11]->Connect ( number1.segment[4]);
   arduino.d[12]->Connect ( number1.segment[5]);
   arduino.d[13]->Connect ( number1.segment[6]);
-  
+  */
+}
 
-  // Draw the additional components (Arduino is drawn in WinMain)
-  led1.DrawWindow       ("Led 1",    hInst,  500,  10);
-  led2.DrawWindow       ("Led 2",    hInst,  675,  10);
-  led3.DrawWindow       ("Led 3",    hInst,  850,  10);
-  switch1.DrawWindow    ("Sw1",      hInst, 1025,  10);
-  number1.DrawWindow    ("Segment1", hInst, 1025, 150);
-  lcdDisplay.DrawWindow ("Display1", hInst, 925, 300);
+void DrawWindow(HINSTANCE hInst)
+{
 }
 
 // Note: component needs to be added here to be displayed
 void PaintComponents(HWND hWnd)
 {
-  // Draw all components
-  arduino.Paint (hWnd);
-  led1.Paint (hWnd);
-  led2.Paint (hWnd);
-  led3.Paint (hWnd);
-  switch1.Paint (hWnd);
-  number1.Paint (hWnd);
-  lcdDisplay.Paint (hWnd);
+  highLevelMenu.Paint (hWnd);
 }
 
-void HandleMouseDown(HWND hWnd)
+void HandleMouseDown(HWND hWnd, int _x, int _y)
 {
-  switch1.HandleMouseDown (hWnd);
+  highLevelMenu.HandleMouseDown (hWnd, _x, _y);
 }
 
 void HandleMouseUp(HWND hWnd)
 {
-  switch1.HandleMouseUp (hWnd);
+  highLevelMenu.HandleMouseUp (hWnd);
+}
+
+void HandleMenuCommand (int command )
+{
+  highLevelMenu.HandleMenu(command);
 }
 
 // this is the main() function under Windows GUI
@@ -155,9 +140,9 @@ int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrev,LPSTR CmdLine,int CmdShow)
  RegisterClass(&Wc);
 
  // Draw all the windows
- (void) highLevelMenu.DrawWindow ( "High Level Menu", hInst, 20, 10);
- (void) keyboardMonitor.DrawWindow ( "Keyboard Monitor", hInst, 20,120);
- hWnd = arduino.DrawWindow ( "Simulated Arduino", hInst, 455, 245 );
+ (void) highLevelMenu.DrawWindow ( "High Level Menu", hInst, "", 20, 10 );
+ (void) keyboardMonitor.DrawWindow ( "Keyboard Monitor", hInst, "", 20,120 );
+ //hWnd = arduino.DrawWindow ( "Simulated Arduino", hInst, "", 455, 245 );
 
  // Connect the circui
  VirtualBreadBoard(hInst);
@@ -166,15 +151,13 @@ int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrev,LPSTR CmdLine,int CmdShow)
  SetTimer(hWnd,1,5,NULL); // Will create a WM_Timer message Every 5 ms
   
  // the event message loop
- while(GetMessage(&Msg,NULL,0,0))
-   {
-    HWND hActiveWindow = GetActiveWindow();
-    if (!IsWindow(hActiveWindow) || !IsDialogMessage(hActiveWindow,&Msg))
-      {
-        TranslateMessage(&Msg);
-        DispatchMessage(&Msg);
-      }
-    }
+ while(GetMessage(&Msg,NULL,0,0)) {
+   HWND hActiveWindow = GetActiveWindow();
+   if (!IsWindow(hActiveWindow) || !IsDialogMessage(hActiveWindow,&Msg)) {
+     TranslateMessage(&Msg);
+     DispatchMessage(&Msg);
+   }
+ }
  return Msg.wParam; 
 }
 
@@ -185,6 +168,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
   static TCHAR szText[512] = "";
   static unsigned long timerCount = 0;
   int len;
+  ViewConnections viewConnections (0,0);
              
   switch (Msg) {
     case WM_CREATE:
@@ -203,8 +187,12 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
       
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
-      HandleMouseDown(hWnd);   
-      break;        
+      HandleMouseDown(hWnd, LOWORD (lParam), HIWORD (lParam));   
+      break; 
+      
+    case WM_MOUSEMOVE:
+      highLevelMenu.HandleMouseMove (hWnd, LOWORD (lParam), HIWORD (lParam));
+      break;         
       
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
@@ -227,6 +215,9 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             }  
           }
         }  
+        
+      HandleMenuCommand (LOWORD(wParam));  
+      
       //  list box item clicked (selected) 
       if (LOWORD(wParam)==1009) {}
                        
@@ -262,9 +253,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     
   
   // tidy up and exit the program via the form's upper left corner x 
-  if (Msg==WM_DESTROY) {
-     UnregisterClass(MYCLASS,BCX_hInstance);
-     PostQuitMessage(0);
+  if (Msg==WM_DESTROY) 
+  {
+  	if (hWnd != viewConnectionHandle)
+  	{
+      UnregisterClass(MYCLASS,BCX_hInstance);
+      PostQuitMessage(0);
+    }
   }
   
   return DefWindowProc(hWnd,Msg,wParam,lParam);

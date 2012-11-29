@@ -1,13 +1,39 @@
 #include "LCDDisplay.h"
 
-LCDDisplay::LCDDisplay():Component()
+void LCDDisplay::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
+{
+  Component::LoadBMap (bmpResource, hBitMap, bitMap );     	
+ Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
+ Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
+  
+  //Component::LoadBMap ("LCDPIN", hbmPinDot, bmPinDot);
+  for (int i=0; i<MAX_LCD_PINS; i++)	
+  	pin[i]->LoadBMap (g_hInst);
+}
+
+LCDDisplay::LCDDisplay(int _x, int _y): Component()
 { 
   offOn = false;
-  x = 0;
-  y = 0;
+  x = _x;
+  y = _y;
   for (int i=0; i<80; i++)
     screen[i] = ' ';
   clearTheText = false; 
+  
+  for (int i=0; i<MAX_LCD_PINS; i++)
+  {
+    pin[i] = new Pin(this);
+	pin[i]->WriteValue (0);
+	if (i<3)  
+	  pin[i]->xOffset = 175 + i*11;
+	else if (i<9)
+	  pin[i]->xOffset = 174 + i*12;  
+	else 
+	  pin[i]->xOffset = 172 + i*12;  
+	pin[i]->yOffset = 265;
+	pin[i]->x = x + pin[i]->xOffset;
+	pin[i]->y = y + pin[i]->yOffset;
+  }	    
 }
 
 void LCDDisplay::clear(HDC hdcWindow)
@@ -41,10 +67,41 @@ void LCDDisplay::showScreen(HDC hdcWindow)
   }  
 }
 
+void LCDDisplay::AddMenu ()
+{
+  HMENU  MainMenu;
+  HMENU  FileMenu;
+     
+  //arduinoMain.setHwnd ( hwndOwner);
+  MainMenu=CreateMenu();
+  FileMenu=CreateMenu();
+  InsertMenu(MainMenu,ID_Edit,MF_POPUP,(UINT_PTR)FileMenu,"Help");
+  AppendMenu(FileMenu,MF_STRING,LCDDISPLAY_ABOUT,"&About");
+  AppendMenu(FileMenu,MF_SEPARATOR,0,"");
+  AppendMenu(FileMenu,MF_STRING,LCDDISPLAY_HELP,"&Component Help");
+  //  activate menu 
+  (void) SetMenu(windowHandle,MainMenu);
+}
+
+void LCDDisplay::HandleMenu ( int command )
+{
+  switch (command)
+  {
+    case LCDDISPLAY_ABOUT:
+      MessageBox(windowHandle, "This item can be purchased from ebay for about $7.00 (Free shipping).  Search ebay for \"20x4 LCD Module\".  It has a 16 pin interface.  A $15.00 pcb is available from Tindie.com which has the pins broken out and can be programmed like an Arduino.  Search www.tindie.com  for\n \"20x4 LCD Module\"", "HD44780", MB_OK | MB_ICONEXCLAMATION);  
+    break;
+    
+    case LCDDISPLAY_HELP:
+      MessageBox(windowHandle, "LCDDisplay Help", "HD44780", MB_OK | MB_ICONEXCLAMATION);  
+    break;
+  }   
+}
+
 void LCDDisplay::print (char * line)
 {
   int len = strlen (line);
   int index;
+  int x,y;
   
   
   if (clearTheText)
@@ -83,50 +140,83 @@ LCDDisplay::~LCDDisplay()
 
 void LCDDisplay::Paint(HWND hWnd)
 {
-  PAINTSTRUCT ps;
-  HDC hdcWindow;
-  HDC hdcMemory;
   bool ledOn; 
-  int x = 31;
-  int y = 0;
-  LPCTSTR lpString = "Score:";
   HFONT hFont;
    
   if (hWnd == windowHandle)
   {
-    Component::Paint (hWnd, hdcWindow, hdcMemory, ps); // Show Arduino image    
+    Component::Paint (hWnd); // Show LCD image  
+
+    /*
     hFont = CreateFont (28,0,0,0,FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
     CLIP_DEFAULT_PRECIS, 0, VARIABLE_PITCH, TEXT ( "Courier New"));
     (void) SetTextColor ( hdcWindow, RGB (255,255,255));
     (void) SetBkMode( hdcWindow, TRANSPARENT);
     SelectObject (hdcWindow, hFont);
     showScreen(hdcWindow);
-    
-    /*
-    ledOn = false;
-    if ((gnd->GetValue() == 0) && (power->GetValue() == 1))
-      ledOn = true;
-      
-    if (ledOn)
-      SelectObject(hdcMemory, hbmRedDot);
-    else
-      SelectObject(hdcMemory, hbmBlackDot);
-     
-    BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-    BitBlt(hdcWindow, x,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
     */
-
-    Component::PaintEnd ( &hdcMemory, hWnd, &ps);
+  
+    // Paint the hotspots
+    for (int i=0; i<MAX_LCD_PINS; i++)
+      pin[i]->Paint(hdcMemory,hdcWindow);
   }    
 }
 
-HWND LCDDisplay::DrawWindow(char * title, HINSTANCE hInst,  
-                     int x, int y)
-{                           
-   HWND hWnd = Component::DrawWindow(title, hInst, "LCDDISPLAY", x, y, 400, 300);
+void LCDDisplay::HandleMouseDown (HWND hWnd, int _x, int _y)
+{
+  Component::HandleMouseDown (hWnd,_x,_y);
+  for (int i=0; i<MAX_LCD_PINS; i++)
+    if (pin[i]->isActive)
+      pin[i]->Select (!pin[i]->isSelected);
+}
+// Check if the mouse has moved over one of the ports.
+void LCDDisplay::HandleMouseMove (HWND hWnd, int _x, int _y)
+{
+  for (int i=0; i<MAX_LCD_PINS; i++)
+    pin[i]->HandleMouseMove (hWnd, _x, _y);
+}
 
-   // Load additional bitmaps   
-   //Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
-   //Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot); 
+Pin * LCDDisplay::PinActive ()
+{
+  Pin * p;
+  for (int i=0; i<MAX_LCD_PINS; i++)
+    if (pin[i]->isActive)
+	{
+	  p = pin[i];
+	  break;
+	}	
+  return p;
+}
+
+// [_x,_y] are absolute values
+void LCDDisplay::MoveTo (int _x, int _y)
+{
+  x = _x-xOffset;
+  y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
+  for (int i=0; i<MAX_LCD_PINS; i++)
+  {
+    pin[i]->MoveTo ( x + pin[i]->xOffset - pin[i]->bm.bmWidth/2,
+                     y + pin[i]->yOffset - pin[i]->bm.bmHeight/2);
+  }
+}
+
+Pin * LCDDisplay::PortSelected(){
+  Pin * p = 0;
+  for (int i=0; i<MAX_LCD_PINS; i++)
+  if (pin[i]->isSelected)
+  {
+  	p = pin[i];
+  	break;
+  }	
+	  
+  return p;  
+}
+
+void LCDDisplay::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
+{
+  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
+  
+  for (int i=0; i<MAX_LCD_PINS; i++)
+    pin[i]->PaintStart ( _hdcWindow, _hdcMemory, _ps);
 }
 

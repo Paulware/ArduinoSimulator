@@ -4,25 +4,33 @@
 #include "Component.h"
 #include "Pin.h"
 #define MAX_DIGITAL_VALUES 20
-class ArduinoComponent:Component
+class ArduinoComponent:public Component
 {
   public:          
     // Constructor
-    ArduinoComponent(); 
+    ArduinoComponent(int, int); 
     // Destructor
     ~ArduinoComponent();
     Pin * power;
 	Pin * gnd;
 	Pin * d[MAX_DIGITAL_VALUES];
-    HWND DrawWindow (char * title, HINSTANCE hInst, int x , int y);
-    void Paint (HWND);    
+	int NumConnections();
+	Pin * GetConnection (int);
+    void Select (bool);
+    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );    
+    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
+    void Paint (HWND hWnd);    
     void digitalWrite (int, int); 
-    HINSTANCE g_hInst; 
-    HDC hdc;
-    HWND formHandle;
+    void MoveTo (int _x, int _y); 
+    void AddMenu ();    
+    void HandleMouseDown (HWND hWnd, int _x, int _y); 
+    void HandleMouseMove (HWND hWnd, int _x, int _y);
+		 
+    Pin * PortSelected();
+    Pin * PinActive();	  
     
   private:
-    int x,y,redDotX,redDotY,blackDotX,blackDotY;
+    int redDotX,redDotY,blackDotX,blackDotY;
 
     HBITMAP       hbmRedDot;
     BITMAP        bmRedDot;
@@ -36,7 +44,7 @@ class ArduinoComponent:Component
       int y;
       bool blackRed;     
     };
-    digitalInfo digitalValues[MAX_DIGITAL_VALUES];    
+    digitalInfo digitalValues[MAX_DIGITAL_VALUES];
 
 };
 
