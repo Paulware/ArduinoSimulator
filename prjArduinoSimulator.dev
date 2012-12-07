@@ -1,7 +1,7 @@
 [Project]
 FileName=prjArduinoSimulator.dev
 Name=prjArduinoSimulator
-UnitCount=40
+UnitCount=46
 Type=0
 Ver=2
 ObjFiles=
@@ -63,7 +63,7 @@ SyncProduct=0
 [Unit3]
 FileName=libraries\EEPROM.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -73,7 +73,7 @@ BuildCmd=
 [Unit5]
 FileName=libraries\SerialClass.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -93,7 +93,7 @@ BuildCmd=
 [Unit10]
 FileName=libraries\ArduinoComponent.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -103,7 +103,7 @@ BuildCmd=
 [Unit11]
 FileName=libraries\Component.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -113,7 +113,7 @@ BuildCmd=
 [Unit2]
 FileName=libraries\Arduino.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -123,7 +123,7 @@ BuildCmd=
 [Unit4]
 FileName=libraries\I2C_eeprom.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -133,7 +133,7 @@ BuildCmd=
 [Unit6]
 FileName=libraries\SerialClass.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -143,7 +143,7 @@ BuildCmd=
 [Unit9]
 FileName=libraries\Led.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -152,7 +152,7 @@ BuildCmd=
 
 [Unit12]
 FileName=libraries\HighLevelMenu.cpp
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -162,7 +162,7 @@ CompileCpp=1
 
 [Unit13]
 FileName=libraries\KeyboardMonitor.cpp
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -173,7 +173,7 @@ CompileCpp=1
 [Unit8]
 FileName=libraries\Pin.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -183,7 +183,7 @@ BuildCmd=
 [Unit15]
 FileName=libraries\SevenSeg.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -193,7 +193,7 @@ BuildCmd=
 [Unit16]
 FileName=libraries\LCDDisplay.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -203,7 +203,7 @@ BuildCmd=
 [Unit17]
 FileName=libraries\Menus.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -213,7 +213,7 @@ BuildCmd=
 [Unit14]
 FileName=libraries\MomentaryDepress.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -223,7 +223,7 @@ BuildCmd=
 [Unit19]
 FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\Components.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -233,7 +233,7 @@ BuildCmd=
 [Unit20]
 FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\DebugUtilities.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -243,7 +243,7 @@ BuildCmd=
 [Unit21]
 FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\PSTRStrings.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -253,7 +253,7 @@ BuildCmd=
 [Unit22]
 FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\ScriptEEPROM.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -263,7 +263,7 @@ BuildCmd=
 [Unit23]
 FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\SevenSegment.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -273,7 +273,7 @@ BuildCmd=
 [Unit25]
 FileName=libraries\LCDDisplay.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -283,7 +283,7 @@ BuildCmd=
 [Unit18]
 FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\ArduinoBASIC.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -293,7 +293,7 @@ BuildCmd=
 [Unit24]
 FileName=libraries\LiquidCrystal.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -303,7 +303,7 @@ BuildCmd=
 [Unit26]
 FileName=libraries\Led.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -313,7 +313,7 @@ BuildCmd=
 [Unit27]
 FileName=libraries\Pin.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -323,7 +323,7 @@ BuildCmd=
 [Unit28]
 FileName=libraries\Component.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -333,7 +333,7 @@ BuildCmd=
 [Unit29]
 FileName=libraries\Line.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -343,7 +343,7 @@ BuildCmd=
 [Unit30]
 FileName=libraries\Line.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -353,7 +353,7 @@ BuildCmd=
 [Unit31]
 FileName=libraries\MomentaryDepress.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -361,19 +361,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit33]
-FileName=libraries\Dot.h
+FileName=libraries\Connection.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit32]
-FileName=libraries\Dot.cpp
-CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -381,9 +371,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit34]
-FileName=libraries\Connection.h
+FileName=libraries\HighLevelMenu.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -391,9 +381,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit35]
-FileName=libraries\Connection.cpp
+FileName=libraries\SevenSeg.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -401,9 +391,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit36]
-FileName=libraries\HighLevelMenu.h
+FileName=libraries\ArduinoComponent.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -411,9 +401,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit37]
-FileName=libraries\SevenSeg.h
+FileName=libraries\ViewConnections.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -421,9 +411,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=libraries\ArduinoComponent.h
+FileName=libraries\ViewConnections.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -431,9 +421,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit39]
-FileName=libraries\ViewConnections.cpp
+FileName=libraries\KeyboardMonitor.h
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -441,9 +431,79 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit40]
-FileName=libraries\ViewConnections.h
+FileName=libraries\ConnectedComponent.cpp
 CompileCpp=1
-Folder=prjArduinoSimulator
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit41]
+FileName=libraries\ConnectedComponent.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit43]
+FileName=libraries\LiquidCrystal.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit42]
+FileName=..\arduino-1.0.2\serialBasic\serialBasic.ino
+CompileCpp=1
+Folder=
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit32]
+FileName=libraries\Connection.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit44]
+FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\SevenSegment.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit45]
+FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\ScriptEEPROM.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit46]
+FileName=..\arduino-1.0.2\libraries\ArduinoBASIC\ArduinoBASIC.h
+CompileCpp=1
+Folder=
 Compile=1
 Link=1
 Priority=1000

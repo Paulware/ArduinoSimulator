@@ -14,7 +14,8 @@ class KeyboardMonitor:Component
     void HandleMenu (int command) {};  
     void HandleMouseDown (HWND hWnd) {};
     void HandleMouseUp (HWND hWnd){};
-    
+    void NotSavedYet(){};
+	    
   private:
     HWND hWndEdit;
 };

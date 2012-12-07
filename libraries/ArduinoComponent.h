@@ -1,10 +1,9 @@
 #ifndef ARDUINOCOMPONENT_H
 #define ARDUINOCOMPONENT_H
 #include <windows.h>
-#include "Component.h"
-#include "Pin.h"
+#include "ConnectedComponent.h"
 #define MAX_DIGITAL_VALUES 20
-class ArduinoComponent:public Component
+class ArduinoComponent:public ConnectedComponent
 {
   public:          
     // Constructor
@@ -14,7 +13,6 @@ class ArduinoComponent:public Component
     Pin * power;
 	Pin * gnd;
 	Pin * d[MAX_DIGITAL_VALUES];
-	int NumConnections();
 	Pin * GetConnection (int);
     void Select (bool);
     void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );    
@@ -24,8 +22,12 @@ class ArduinoComponent:public Component
     void MoveTo (int _x, int _y); 
     void AddMenu ();    
     void HandleMouseDown (HWND hWnd, int _x, int _y); 
-    void HandleMouseMove (HWND hWnd, int _x, int _y);
-		 
+    void HandleMouseMove (HWND hWnd, int _x, int _y);    
+    void SaveYourself (FILE * fp);       
+    Pin * FindPort ( char *); 
+    bool IsSet();
+    void Reset();	   
+        
     Pin * PortSelected();
     Pin * PinActive();	  
     

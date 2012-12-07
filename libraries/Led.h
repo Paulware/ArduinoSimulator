@@ -1,12 +1,11 @@
 #ifndef LED_H
 #define LED_H
-#include "Component.h"
-#include "Pin.h"
-class Led:public Component
+#include "ConnectedComponent.h"
+class Led:public ConnectedComponent
 {
   public:          
-    Led(int,int); // Constructor
-    ~Led(); // Destructor
+    Led(int,int);
+    ~Led();
     Pin * PortSelected ();
     void Select (bool);
     void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
@@ -22,8 +21,10 @@ class Led:public Component
     void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );
     Pin * gnd;
     Pin * power;
-    void AddMenu (); 
-	    
+    void AddMenu ();
+    void SaveYourself (FILE * fp);    
+    Pin * FindPort ( char *);    
+	 	    
   private:
     bool offOn;
     HBITMAP       hbmRedDot;

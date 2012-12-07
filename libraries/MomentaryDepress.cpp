@@ -1,5 +1,5 @@
 #include "MomentaryDepress.h"
-MomentaryDepress::MomentaryDepress(int _x, int _y):Component()
+MomentaryDepress::MomentaryDepress(int _x, int _y):ConnectedComponent(_x,_y)
 { 
   depressed = false;
   input = new Pin(this);
@@ -15,13 +15,14 @@ MomentaryDepress::MomentaryDepress(int _x, int _y):Component()
   output->x = x + output->xOffset;
   output->y = y + output->yOffset; 
   input->SetName ("Switch Left");
-  output->SetName ("Switch Right");       
+  output->SetName ("Switch Right");  
+  SaveType ("MomentaryDepress");          
 }
 
 MomentaryDepress::~MomentaryDepress()
 {
-  delete (input);
-  delete (output);
+  //delete (input);
+  //delete (output);
 }
 
 Pin * MomentaryDepress::PinActive ()
@@ -37,11 +38,25 @@ Pin * MomentaryDepress::PinActive ()
 // Check if the mouse has moved over one of the ports.
 void MomentaryDepress::HandleMouseMove (HWND hWnd, int _x, int _y)
 {
-  Component::HandleMouseMove (hWnd,_x,_y);
+  ConnectedComponent::HandleMouseMove (hWnd,_x,_y);
   input->HandleMouseMove  (hWnd, _x, _y );
   output->HandleMouseMove (hWnd, _x, _y );  
 }
 
+Pin * MomentaryDepress::FindPort ( char * port)
+{
+  Pin * pin;
+  if (!strcmp (port,"Switch Left"))
+    pin = input;
+  if (!strcmp(port,"Switch Right"))
+    pin = output;
+  return pin;    
+}
+
+void MomentaryDepress::SaveYourself (FILE * fp)
+{
+  fprintf ( fp, "MomentaryDepress,%d,%d",x,y);
+}
 
 void MomentaryDepress::HandleMouseDown (HWND hWnd, int _x, int _y)
 {
@@ -70,6 +85,19 @@ void MomentaryDepress::Reset ()
   input->Reset();
   output->Reset();
 }
+
+void MomentaryDepress::SetPins()
+{
+  ConnectedComponent::SetPins();
+  if (depressed)
+  {
+  	if (!input->GetValue()) // gnd is dominant
+  	  output->WriteValue(0);
+  	else if (!output->GetValue())
+  	  input->WriteValue(0);
+  }
+}
+
 
 void MomentaryDepress::HandleMouseUp (HWND hWnd)
 {
@@ -104,7 +132,7 @@ void MomentaryDepress::Paint(HWND hWnd)
     
   if (hWnd == windowHandle)
   {
-    Component::Paint (hWnd); // Show Arduino image    
+    ConnectedComponent::Paint (hWnd); // Show Arduino image    
 
     if (depressed)
     {
@@ -123,8 +151,8 @@ void MomentaryDepress::Paint(HWND hWnd)
 
 void MomentaryDepress::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap)
 {
-   Component::LoadBMap (bmpResource, hBitMap, bitMap );          
-   Component::LoadBMap ("DEPRESSED", hbmDepressed, bmDepressed);
+   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );          
+   ConnectedComponent::LoadBMap ("DEPRESSED", hbmDepressed, bmDepressed);
    
    output->LoadBMap (g_hInst);
    input->LoadBMap (g_hInst);
@@ -142,7 +170,7 @@ Pin * MomentaryDepress::PortSelected(){
 
 void MomentaryDepress::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
 {
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
+  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
   
   input->PaintStart ( _hdcWindow, _hdcMemory, _ps);
   output->PaintStart ( _hdcWindow, _hdcMemory, _ps);
@@ -151,12 +179,16 @@ void MomentaryDepress::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTR
 // [_x,_y] are absolute values
 void MomentaryDepress::MoveTo (int _x, int _y)
 {
+	
   x = _x-xOffset;
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
   input->MoveTo (x + input->xOffset - input->bm.bmWidth/2, 
                  y + input->yOffset - input->bm.bmHeight/2);
   output->MoveTo (x + output->xOffset - output->bm.bmWidth/2,
                   y + output->yOffset - output->bm.bmHeight/2);   
+  // Move connections
+  ConnectedComponent::Move (); 
+                  
 }
 
 

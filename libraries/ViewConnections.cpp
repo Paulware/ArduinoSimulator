@@ -1,44 +1,18 @@
 #include "ViewConnections.h"
 #include "Pin.h"
+#include "ArduinoComponent.h"
+#include "HighLevelMenu.h"
 
 extern HWND viewConnectionHandle; // definition outside class declaration
-
 
 ViewConnections::ViewConnections(int _x, int _y):Component()
 { 
   x = _x;
   y = _y;
-  for (int i=0; i<numConnections;i++)
-    connections[i] = 0;
-  numDevices = 0; 
-}
-
-void ViewConnections::AddDevice ( char * name, Component * component)
-{
- devices[numDevices].component = component;
- devices[numDevices].name = (char *) calloc ( 1, strlen(name)+ 1);
- strcpy ( devices[numDevices++].name, name);
 }
 
 ViewConnections::~ViewConnections()
-{
-  for (int i=0;i<numConnections;i++)
-    delete (connections[i]);
-    
-  for (int i=0;i<numDevices;i++)  
-  	delete (devices[i].name);
-  	
-}
-
-void ViewConnections::SetConnection (int i, char * value)
-{
-  	
-  if (i<numConnections)
-  {
-  	delete (connections[i]);
-  	connections[i] = (char *)calloc (1,strlen(value)+1);
-  }
-  strcpy (connections[i],value);
+{ 	
 }
 
 // Set the hdcWindow, hdcMemory and ps for all the components 
@@ -53,48 +27,37 @@ void ViewConnections::Paint(HWND hWnd)
 {
   int x;
   int y=0;	
-  int numConnects;
-  Component * component;
+  Connection * connection;
+  ArduinoComponent * arduino = (ArduinoComponent *)HighLevelMenu::Instance()->FindComponent("Arduino");
   char * name;
   Pin * pin;
+  char value[10];
+  /*
   char * names[numConnections] = {    "d0",  "d1",  "d2",  "d3", "d4", "d5", "d6", "d7", "d8", "d9",
                                     "d10", "d11", "d12", "d13", "a0", "a1", "a2", "a3", "a4", "a5", 
    				   			      "power", "gnd"};
   char * info[numConnections] = { "NC", "NC", "NC", "NC", "NC", "NC", "NC", "NC", "NC", "NC",
                                   "NC", "NC", "NC", "NC", "NC", "NC", "NC", "NC", "NC", "NC", 
-   				   			      "NC", "NC"};
+   				   			      "NC", "NC"};			   			      
+  */   				   			      
+  int index = 0;   				   			      
   PaintStart ();
-  for (int i=0; i<numDevices; i++)
+
+  while (connection = arduino->connections[index])
   {
-  	if (!strcmp ( devices[i].name,"Arduino"))
-  	{
-  	  component = devices[i].component;
-  	  numConnects = component->NumConnections();
-  	  for (int j=0; j<numConnections; j++)
-      {
-      	pin = (Pin *)component->GetConnection(j);
-      	if (pin->connection)
-      	{
-          //delete(info[j]);      
-          name = pin->ConnectedName();
-		  if (name)
-		  {	
-            info[j] = (char *) calloc ( 1,strlen(name)+1);
-            strcpy ( info[j],name);
-          }
-          else // store empty string in info[j]
-          	info[j] = (char *) calloc ( 1,1);
-        }
-      }
-  	  break;
-  	}
-  }
-  
-  for (int i=0; i<numConnections; i++)
-  {
-    TextOut (hdcWindow,  10, y,names[i],strlen(names[i]));
-    TextOut (hdcWindow, 100, y,info[i],strlen(info[i]));
+  	name = connection->pin1->name;
+    TextOut (hdcWindow,  10, y,name,strlen(name));
+    
+    name = connection->pin2->name;
+    TextOut (hdcWindow, 100, y,name,strlen(name));
+    
+    itoa (connection->pin1->GetValue(), value, 10);
+    TextOut (hdcWindow, 190, y, value, strlen (value));
+    
+    itoa (connection->pin2->GetValue(), value, 10);
+    TextOut (hdcWindow, 280, y, value, strlen (value));
     y += 20;
+    index++;
   }
   
   PaintEnd ();

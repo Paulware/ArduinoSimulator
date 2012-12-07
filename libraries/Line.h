@@ -1,7 +1,7 @@
 #ifndef LINE_H
 #define LINE_H
 #include "Component.h"
-#include "Dot.h"
+// #include "Dot.h"
 #define DOTSPERLINE 40
 class Line:public Component
 {
@@ -12,9 +12,10 @@ class Line:public Component
     void Paint(HWND hWnd);                      
     void HandleMouseMove (HWND hWnd, int _x, int _y){};  
     void HandleMouseDown (HWND hWnd, int _x, int _y);  
-    void MoveTo (int, int, int, int);  
+    void MoveTo (int, int, int , int);  
     void LoadBMap (HINSTANCE);
-	 
+    void NotSavedYet(){};
+		 
   private:
     HBITMAP       hbmRedDot;
     BITMAP        bmRedDot;
@@ -27,7 +28,7 @@ class Line:public Component
     int x2; 
     int y2;
     
-    Dot * dot[DOTSPERLINE];
+    Component * dot[DOTSPERLINE];
 };
 #endif
 

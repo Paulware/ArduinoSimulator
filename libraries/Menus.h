@@ -29,5 +29,9 @@
 #define ADDARDUINO 116
 
 #define VIEWARDUINOCONNECTIONS 117
+#define SAVE 118
+#define SAVEAS 119
+#define READPROJECT 120
+#define NEWPROJECT 121
 
 #endif

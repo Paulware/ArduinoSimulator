@@ -15,6 +15,17 @@ Component::Component()
   hdcWindow = 0;
   hdcMemory = 0;
   bm.bmWidth = 0;
+  strcpy (componentType, "");
+}
+
+Component::~Component()
+{
+}
+
+void Component::SaveType (char * typeName)
+{
+  if (strlen (typeName) < MAXCOMPONENTTYPELENGTH)
+    strcpy ( componentType, typeName);
 }
 
 void Component::PaintEnd ()
@@ -50,8 +61,8 @@ void Component::Refresh ()
 {
   if (windowHandle)
     InvalidateRect ( windowHandle, NULL, true );      
-  if (lastWindow)
-    InvalidateRect ( lastWindow, NULL, true);  
+  //if (lastWindow)
+  //  InvalidateRect ( lastWindow, NULL, true);  
 }
 
 /*
@@ -73,7 +84,6 @@ void Component::Paint(HWND hWnd)
     BitBlt(hdcWindow, x, y, bm.bmWidth, bm.bmHeight, hdcMemory, 0, 0, SRCAND);
     BitBlt(hdcWindow, x, y, bm.bmWidth, bm.bmHeight, hdcMemory, 0, 0, SRCPAINT);
   }  
-  lastWindow = hWnd;
 }
 
 void Component::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
@@ -85,14 +95,23 @@ void Component::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
   }       
 }
 
+void Component::SaveYourself (FILE * fp)
+{
+  fprintf ( fp, "Generic Component saving itself");
+}
+
+/*
 void Component::HandleMouseMove (HWND hWnd, int _x, int _y)
 {
+  
   if (bm.bmWidth)
     if ((_x >= x) && (_x <= x+bm.bmWidth) && (_y >= y) && (_y <= y+bm.bmHeight))
       isActive = true;
     else if (isActive)
-      isActive = false;    
+      isActive = false;   
+   
 }
+*/
 
 // This function sets bm, and hbm to the specified resource
 void Component::Show ( HINSTANCE hInst, HWND hWnd, char * bmpResource)

@@ -1,15 +1,17 @@
 #include "SevenSeg.h"
-SevenSeg::SevenSeg(int _x, int _y):Component()
+SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
 { 
-  int xs[] = {25,50,75,5,25,50,75};                       
-  int ys[] = {135,135,135,70,10,10,10};
+  int xs[] = { 20, 45, 70,  5, 20, 45, 70};                       
+  int ys[] = {127,127,127, 63,  5,  5,  5};
+  char segmentName[] = "segment[i]";
   x = _x;
   y = _y;
   gnd = new Pin(this);
-  gnd->xOffset = 95;
-  gnd->yOffset = 70;
+  gnd->xOffset = 85;
+  gnd->yOffset = 63;
   gnd->x = x + gnd->xOffset;
   gnd->y = y + gnd->yOffset;
+  gnd->SetName ("gnd");
   
   for (int i=0; i<7;i++)
   {
@@ -19,31 +21,72 @@ SevenSeg::SevenSeg(int _x, int _y):Component()
 	segment[i]->yOffset = ys[i];
 	segment[i]->x = x + segment[i]->xOffset;
 	segment[i]->y = y + segment[i]->yOffset;
+	segmentName[8] = '0' + i;
+	segment[i]->SetName (segmentName);
   }	
-  segmentValues[5] = (SegmentInfo) { 30,   7,  true};
-  segmentValues[4] = (SegmentInfo) { 30,  55,  true};
-  segmentValues[1] = (SegmentInfo) { 80,   7,  true};
-  segmentValues[2] = (SegmentInfo) { 80,  55,  true};
-  segmentValues[0] = (SegmentInfo) { 35,   0, false};
-  segmentValues[6] = (SegmentInfo) { 35,  50, false};
-  segmentValues[3] = (SegmentInfo) { 35,  98, false};
+  segmentValues[5] = (SegmentInfo) { 21,  27,  true};
+  segmentValues[4] = (SegmentInfo) { 21,  75,  true};
+  segmentValues[1] = (SegmentInfo) { 71,  27,  true};
+  segmentValues[2] = (SegmentInfo) { 71,  75,  true};
+  segmentValues[0] = (SegmentInfo) { 26,  20, false};
+  segmentValues[6] = (SegmentInfo) { 26,  70, false};
+  segmentValues[3] = (SegmentInfo) { 26, 116, false};
+  
+  SaveType ("SevenSegment");     
+}
+
+Pin * SevenSeg::FindPort ( char * port)
+{
+  char segmentName[] = "segment[i]";
+  Pin * pin;
+  if (!strcmp (port,"gnd"))
+    pin = gnd;
+    
+  for (int i=0; i<7;i++)
+  {
+	segmentName[8] = '0' + i;
+  	if (!strcmp(port,segmentName))
+  	{
+  	  pin = segment[i];
+	  break;
+	}
+  }	
+    
+  return pin;  
+}
+
+void SevenSeg::Select ( bool select)
+{
+  gnd->Select(false);
+  for (int i=0; i<7; i++)
+    segment[i]->Select(false);
+}
+
+
+void SevenSeg::SaveYourself (FILE * fp)
+{
+  fprintf ( fp, "Seven Segment,%d,%d",x,y);
 }
 
 // [_x,_y] are absolute values
 void SevenSeg::MoveTo (int _x, int _y)
 {
+  ConnectedComponent::MoveTo (_x,_y);	
+	
   x = _x-xOffset;
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
-  gnd->MoveTo (x + gnd->xOffset - gnd->bm.bmWidth/2,
-               y + gnd->yOffset - gnd->bm.bmHeight/2);    
+  gnd->MoveTo (x + gnd->xOffset,
+               y + gnd->yOffset);    
   for (int i=0; i<7; i++)
-  	segment[i]->MoveTo (x + segment[i]->xOffset - segment[i]->bm.bmWidth/2,
-                        y + segment[i]->yOffset - segment[i]->bm.bmHeight/2);
+  	segment[i]->MoveTo (x + segment[i]->xOffset,
+                        y + segment[i]->yOffset);
+  // Move connections
+  ConnectedComponent::Move ();                         
 }
 
 void SevenSeg::HandleMouseDown (HWND hWnd, int _x, int _y)
 {
-  Component::HandleMouseDown (hWnd,_x,_y);
+  ConnectedComponent::HandleMouseDown (hWnd,_x,_y);
   if (gnd->isActive) // we are over the ground spot     
     gnd->Select(!gnd->isSelected);
   else
@@ -123,25 +166,31 @@ void SevenSeg::HandleMenu ( int command )
   }       
 }
 
+void SevenSeg::Reset()
+{
+  for (int i=0; i<7; i++)
+    segment[i]->WriteValue (-1);	
+}
+
 void SevenSeg::Paint(HWND hWnd)
 {
-  int x = 31;
-  int y = 0;
   int width;
   int height;
   bool vertical;
   bool offOn;
+  int pinValue;
    
   if (hWnd == windowHandle)
   {
-    Component::Paint (hWnd); // Show Arduino image    
+    ConnectedComponent::Paint (hWnd); // Show Arduino image    
     for (int i=0; i<7; i++)
     {  
-      x = segmentValues[i].x;
-      y = segmentValues[i].y;
       vertical = segmentValues[i].horizontalVertical;
       offOn = false;
-      if ((gnd->GetValue() == 0) && (segment[i]->GetValue() == 1))
+      pinValue = segment[i]->GetValue();
+      if (pinValue == 1)
+        pinValue = 1;
+      if ((gnd->GetValue() == 0) && (pinValue == 1))
         offOn = true;
       if (offOn)  
       {
@@ -157,8 +206,8 @@ void SevenSeg::Paint(HWND hWnd)
           width = bmLeftRight.bmWidth;
           height = bmLeftRight.bmHeight;
         }  
-        BitBlt(hdcWindow, x,y, width, height, hdcMemory, 0, 0, SRCAND);
-        BitBlt(hdcWindow, x,y, width, height, hdcMemory, 0, 0, SRCPAINT);
+        BitBlt(hdcWindow, segmentValues[i].x + x,segmentValues[i].y + y, width, height, hdcMemory, 0, 0, SRCAND);
+        BitBlt(hdcWindow, segmentValues[i].x + x,segmentValues[i].y +y, width, height, hdcMemory, 0, 0, SRCPAINT);
       }
       segment[i]->Paint (hdcMemory,hdcWindow);        
     }
@@ -169,9 +218,9 @@ void SevenSeg::Paint(HWND hWnd)
 
 void SevenSeg::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
 {
-   Component::LoadBMap (bmpResource, hBitMap, bitMap );     
-   Component::LoadBMap ("LEFTRIGHT", hbmLeftRight, bmLeftRight);
-   Component::LoadBMap ("UPDOWN", hbmUpDown, bmUpDown); 
+   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );     
+   ConnectedComponent::LoadBMap ("LEFTRIGHT", hbmLeftRight, bmLeftRight);
+   ConnectedComponent::LoadBMap ("UPDOWN", hbmUpDown, bmUpDown); 
    
    gnd->LoadBMap (g_hInst);
    for (int i=0; i<7;i++)
@@ -181,7 +230,7 @@ void SevenSeg::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
 HWND SevenSeg::DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
                            int x , int y, int width, int height)
 {                           
-   HWND hWnd = Component::DrawWindow(title, hInst, "SEVENSEGMENT", x, y, 100, 160);  
+   HWND hWnd = ConnectedComponent::DrawWindow(title, hInst, "SEVENSEGMENT", x, y, 100, 160);  
 }
 
 Pin * SevenSeg::PortSelected(){
@@ -201,7 +250,7 @@ Pin * SevenSeg::PortSelected(){
 
 void SevenSeg::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
 {
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
+  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
   
   gnd->PaintStart ( _hdcWindow, _hdcMemory, _ps);
   for (int i=0; i<7; i++)

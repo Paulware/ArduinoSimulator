@@ -3,33 +3,21 @@ Pin::Pin(Component * _parent)
 { 
   value = -1;
   parent = _parent;
-  numConnections = 0; 
   x = 0;
   y = 0; 
   xOffset = 0;
   yOffset = 0;  
   isActive = false;
   isSelected = false;
-  connection = 0;
-  for (int i=0; i<MAX_PIN_CONNECTIONS; i++)
-     connectedTo[i] =0;  
   name = 0; 
   constValue = -1;	       
 }
 
 Pin::~Pin()
 {
-  if (connection)
-    delete (connection);
+  //if (connection)
+  //  delete (connection);
   delete (name);
-}
-
-char * Pin::ConnectedName ()
-{
-  char * name = 0;
-  if (connectedTo[0])
-    name = connectedTo[0]->name;
-  return name;
 }
 
 void Pin::SetName(char * _name)
@@ -40,8 +28,6 @@ void Pin::SetName(char * _name)
 
 void Pin::PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTRUCT & ps)
 {
-  if (connection)
-    connection->PaintStart (_hdcWindow, _hdcMemory, ps);
 }
 
 void Pin::Paint (HDC hdcMemory, HDC hdcWindow)
@@ -49,24 +35,15 @@ void Pin::Paint (HDC hdcMemory, HDC hdcWindow)
   SelectObject(hdcMemory, hbm); 
   BitBlt(hdcWindow, x, y, bm.bmWidth, bm.bmHeight, hdcMemory, 0, 0, SRCAND);
   BitBlt(hdcWindow, x, y, bm.bmWidth, bm.bmHeight, hdcMemory, 0, 0, SRCPAINT);
-  if (connection)
-    connection->Paint (parent->windowHandle);
 }
 
 void Pin::MoveTo (int _x, int _y)
 {
-  Pin * conn = connectedTo[0];
+  Pin * conn;
+  int index = 0;
 
   x = _x;
   y = _y;
-  if (numConnections) // TODO: necessary?  check conn when numConnections > 0
-  {
-    if (connection && numConnections) // TODO handle more than one connection
-      connection->MoveTo (x, y, conn->x, conn->y);
-    else if (conn)
-      if (conn->connection)
-        conn->connection->MoveTo (x, y, conn->x, conn->y);
-  }
 }
 
 // Change color of pin to indicate active
@@ -107,7 +84,10 @@ void Pin::LoadBMap ( HINSTANCE h_Inst, char * bmpResource)
 
 void Pin::Reset()
 {
-  value = -1;
+  if (constValue == -1)
+    value = -1;
+  else
+    value = constValue;  
 }
 
 bool Pin::IsSet()
@@ -122,20 +102,16 @@ bool Pin::IsSet()
 int Pin::GetValue ()
 { 
   Pin * pin;
+  char * myName = name;
+  
   int val = -1;
   if (constValue != -1)
     val = constValue;
   else if (value != -1)
     val = value;
-  else
-  {
-    pin = connectedTo[0];
-    if (pin)
-      if (pin->constValue != -1)
-        val = pin->constValue;
-      else
-        val = pin->value;
-  }
+    
+  if (val == 1)
+    val = 1;  
   return val;
 }
 
@@ -149,40 +125,4 @@ bool Pin::IsSelected ()
   return isSelected;
 }
 
-void Pin::ConnectDots ( Pin * pin)
-{
-  int xOffset = 0; // bm.bmWidth/2;
-  int yOffset = 0; // bm.bmHeight/2;
-	
-  if (connection)
-    delete (connection); // Memory cleanup
-  // Only create 1 line from first pin to second
-  connection = new Connection ({x+xOffset,y+yOffset},{pin->x+xOffset,pin->y+yOffset});
-  connection->LoadBMap (myInst);    
- 
-  // Deselect both pins
-  Select (false); 
-  pin->Select (false);
-}
 
-void Pin::Connect( Pin * pin )
-{
-  bool found = false;
-  
-  if (!connection)
-    connection = pin->connection;
-    
-  // Check if already connected
-  for (int i=0; i<numConnections; i++)
-    if (connectedTo[i] == pin)
-      found = true;
-  
-  // Only connect once    
-  if (!found)
-  {
-    // I am connected to you
-    connectedTo[numConnections++] = pin;
-    // You are connected to me
-    pin->Connect (this);
-  }  
-}

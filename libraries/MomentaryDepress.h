@@ -1,8 +1,7 @@
 #ifndef MOMENTARYDEPRESS_H
 #define MOMENTARYDEPRESS_H
-#include "Component.h"
-#include "Pin.h"
-class MomentaryDepress:public Component
+#include "ConnectedComponent.h"
+class MomentaryDepress:public ConnectedComponent
 {
   public:          
     // Constructor
@@ -21,8 +20,10 @@ class MomentaryDepress:public Component
     Pin * PinActive ();      
     void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap);
     bool IsSet();
+    void SetPins();
     void Reset();
-
+    void SaveYourself (FILE * fp);        
+    Pin * FindPort ( char * port);
     Pin * input;
     Pin * output;
     

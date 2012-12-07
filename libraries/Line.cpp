@@ -1,6 +1,4 @@
 #include "Line.h"
-#include "Menus.h"
-
 Line::Line(int _x1, int _y1, int _x2, int _y2):Component()
 { 
   float xOffset = 0.0;
@@ -18,7 +16,9 @@ Line::Line(int _x1, int _y1, int _x2, int _y2):Component()
   {
   	x = x1+xOffset;
   	y = y1+yOffset;
-    dot[i] = new Dot (x,y);
+    dot[i] = new Component ();
+    dot[i]->x = x;
+    dot[i]->y = y;
     xOffset += xDiff;
     yOffset += yDiff;
   }
@@ -79,7 +79,7 @@ void Line::LoadBMap (HINSTANCE hInst)
 {	
   for (int i=0; i<DOTSPERLINE; i++)
   {
-    dot[i]->LoadBMap (hInst);
+  	dot[i]->Show (hInst, windowHandle, "DOT");
     dot[i]->CenterYourself();
   }
 }

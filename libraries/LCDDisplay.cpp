@@ -1,17 +1,6 @@
 #include "LCDDisplay.h"
 
-void LCDDisplay::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
-{
-  Component::LoadBMap (bmpResource, hBitMap, bitMap );     	
- Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
- Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
-  
-  //Component::LoadBMap ("LCDPIN", hbmPinDot, bmPinDot);
-  for (int i=0; i<MAX_LCD_PINS; i++)	
-  	pin[i]->LoadBMap (g_hInst);
-}
-
-LCDDisplay::LCDDisplay(int _x, int _y): Component()
+LCDDisplay::LCDDisplay(int _x, int _y): ConnectedComponent(_x,_y)
 { 
   offOn = false;
   x = _x;
@@ -33,15 +22,39 @@ LCDDisplay::LCDDisplay(int _x, int _y): Component()
 	pin[i]->yOffset = 265;
 	pin[i]->x = x + pin[i]->xOffset;
 	pin[i]->y = y + pin[i]->yOffset;
-  }	    
+  }	 
+  SaveType ("LCDDisplay");   
 }
 
-void LCDDisplay::clear(HDC hdcWindow)
+void LCDDisplay::print ( int value)
 {
-  TextOut (hdcWindow, 55,  73,  "                    ", 20 );
-  TextOut (hdcWindow, 55, 103,  "                    ", 20 );
-  TextOut (hdcWindow, 55, 133,  "                    ", 20 );
-  TextOut (hdcWindow, 55, 163,  "                    ", 20 );
+  char val[] = "000000000000";
+  itoa (value, val, 10);
+  print (val);
+}
+
+void LCDDisplay::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
+{
+  Component::LoadBMap (bmpResource, hBitMap, bitMap );     	
+  Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
+  Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
+  
+  //Component::LoadBMap ("LCDPIN", hbmPinDot, bmPinDot);
+  for (int i=0; i<MAX_LCD_PINS; i++)	
+  	pin[i]->LoadBMap (g_hInst);
+}
+
+void LCDDisplay::SaveYourself (FILE * fp)
+{
+  fprintf ( fp, "LCDDisplay,%d,%d",x,y);
+}
+
+void LCDDisplay::clear()
+{
+  TextOut (hdcWindow, x+55, y+ 73,  "                    ", 20 );
+  TextOut (hdcWindow, x+55, y+103,  "                    ", 20 );
+  TextOut (hdcWindow, x+55, y+133,  "                    ", 20 );
+  TextOut (hdcWindow, x+55, y+163,  "                    ", 20 );
 }
 
 void LCDDisplay::showScreen(HDC hdcWindow)
@@ -49,13 +62,7 @@ void LCDDisplay::showScreen(HDC hdcWindow)
   char line[20];
   int index;
   
-  /*
-  TextOut (hdcWindow, 55,  73,  "12345678901234567890", 20 );
-  TextOut (hdcWindow, 55, 103,  " Hello Howdy    Bye ", 20 );
-  TextOut (hdcWindow, 55, 133,  "I am doing Great !!!", 20 );
-  TextOut (hdcWindow, 55, 163,  "That is all bye!    ", 20 );
-  */
-  clear(hdcWindow);  
+  clear();  
   for (int i=0; i<4; i++)
   {
     index = i*20;
@@ -63,7 +70,7 @@ void LCDDisplay::showScreen(HDC hdcWindow)
     {
       line[j] = screen[index+j];
     }
-    TextOut ( hdcWindow, 55, 73 + (30*i), &line[0], 20);
+    TextOut ( hdcWindow, x+55, y+73 + (30*i), &line[0], 20);
   }  
 }
 
@@ -101,7 +108,8 @@ void LCDDisplay::print (char * line)
 {
   int len = strlen (line);
   int index;
-  int x,y;
+  static int col = 0;
+  static int row = 0;
   
   
   if (clearTheText)
@@ -109,25 +117,25 @@ void LCDDisplay::print (char * line)
     for (int i=0; i<80; i++)
     {
       screen[i] = ' ';
-      x = 0;
-      y = 0;
+      col = 0;
+      row = 0;
     }
     clearTheText = false;
   }  
   
-  index  = x + (y*20);
+  index  = col + (row*20);
   
   index %= 80;  
   for (int i=0; i<len; i++)
   {
     screen[index++] = line[i];
-    x++;
-    if (x == 20)
+    col++;
+    if (col == 20)
     {
-      x = 0;
-      y ++;
-      if ( y == 4);
-        y = 0;
+      col = 0;
+      row ++;
+      if ( row == 4)
+        row = 0;
     }
     index %= 80;
   }
@@ -147,14 +155,14 @@ void LCDDisplay::Paint(HWND hWnd)
   {
     Component::Paint (hWnd); // Show LCD image  
 
-    /*
+    
     hFont = CreateFont (28,0,0,0,FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
     CLIP_DEFAULT_PRECIS, 0, VARIABLE_PITCH, TEXT ( "Courier New"));
     (void) SetTextColor ( hdcWindow, RGB (255,255,255));
     (void) SetBkMode( hdcWindow, TRANSPARENT);
     SelectObject (hdcWindow, hFont);
     showScreen(hdcWindow);
-    */
+    
   
     // Paint the hotspots
     for (int i=0; i<MAX_LCD_PINS; i++)
@@ -190,7 +198,7 @@ Pin * LCDDisplay::PinActive ()
 
 // [_x,_y] are absolute values
 void LCDDisplay::MoveTo (int _x, int _y)
-{
+{	
   x = _x-xOffset;
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
   for (int i=0; i<MAX_LCD_PINS; i++)
@@ -198,6 +206,8 @@ void LCDDisplay::MoveTo (int _x, int _y)
     pin[i]->MoveTo ( x + pin[i]->xOffset - pin[i]->bm.bmWidth/2,
                      y + pin[i]->yOffset - pin[i]->bm.bmHeight/2);
   }
+  // Move connections
+  ConnectedComponent::Move (); 
 }
 
 Pin * LCDDisplay::PortSelected(){

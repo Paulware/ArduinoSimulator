@@ -1,6 +1,6 @@
 #include "ArduinoComponent.h"
 // 14 Digitals plus 6 analogs can also be used
-ArduinoComponent::ArduinoComponent(int _x, int _y): Component()
+ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
 { 
   char name[] = "d00";
   x = _x;
@@ -11,7 +11,7 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): Component()
   gnd->yOffset = 319;
   gnd->x = x + gnd->xOffset;
   gnd->y = y + gnd->yOffset;
-  gnd->SetName ("Gnd");
+  gnd->SetName ("gnd");
   power = new Pin (this);
   power->constValue = 1;
   power->xOffset = 278;
@@ -22,7 +22,7 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): Component()
   for (int i=0; i<MAX_DIGITAL_VALUES; i++)
   {
     d[i] = new Pin(this);  
-    d[i]->WriteValue (0);
+    d[i]->WriteValue (0); //TODO if this is an output const Value can = 0.
     name[1] = '0' + (i/10);
     name[2] = '0' + (i%10);
     d[i]->SetName (&name[0]);
@@ -54,25 +54,55 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): Component()
     d[i]->x = digitalValues[i].x+x;
     d[i]->y = digitalValues[i].y+y;
   }
+  SaveType ("Arduino");
+}
+
+bool ArduinoComponent::IsSet()
+{
+  bool isSet = true;
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+  	if (!d[i]->IsSet())
+  	{
+  	  isSet = false;
+  	  break;
+  	}
+  return isSet;	
+}
+void ArduinoComponent::Reset()
+{
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+  	d[i]->Reset();
+}
+
+
+Pin * ArduinoComponent::FindPort ( char * port)
+{
+  Pin * pin = 0;
+  char name[] = "d00";
+  
+  if (!strcmp ( port, "gnd"))
+    pin = gnd;
+  if (!strcmp(port, "5v"))
+    pin = power;
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+  {
+    name[1] = '0' + (i/10);
+    name[2] = '0' + (i%10);
+    if (!strcmp ( port, name))
+    {
+      pin = d[i];
+      break;
+    }
+  }  
+  return pin;
 }
 
 ArduinoComponent::~ArduinoComponent()
 {
-  delete (gnd);
-  delete (power);
-  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-    delete (d[i]);
-}
-
-int ArduinoComponent::NumConnections()
-{
-  int numConnections = 0;
-  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-  {
-  	if (d[i]->connection)
-  	  numConnections++;
-  }
-  return numConnections;
+  //delete (gnd);
+  //delete (power);
+  //for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+  //  delete (d[i]);
 }
 
 Pin * ArduinoComponent::GetConnection (int which)
@@ -93,10 +123,9 @@ Pin * ArduinoComponent::GetConnection (int which)
   return pin;
 }
 
-
 void ArduinoComponent::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
 {
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
+  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
   gnd->PaintStart ( _hdcWindow, _hdcMemory, _ps);
   power->PaintStart ( _hdcWindow,_hdcMemory, _ps);
   // Show image of digitalValues
@@ -108,22 +137,8 @@ void ArduinoComponent::Paint(HWND hWnd)
 {
   if (hWnd == windowHandle)
   {
-    Component::Paint (hWnd); // Show Arduino image    
-   
-    /*  
-    // Show image of digitalValues
-    for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-    {  
-      port[i]->Paint (hdcMemory,hdcWindow);
-      if (digitalValues[i].blackRed)  
-        SelectObject(hdcMemory, hbmRedDot);
-      else
-        SelectObject(hdcMemory, hbmBlackDot);
-      BitBlt(hdcWindow, digitalValues[i].x+x,digitalValues[i].y+y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-      BitBlt(hdcWindow, digitalValues[i].x+x,digitalValues[i].y+y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
-    } 
-    */
-    
+    ConnectedComponent::Paint (hWnd); // Show Arduino image    
+       
     for (int i=0; i<MAX_DIGITAL_VALUES;i++)
       d[i]->Paint (hdcMemory,hdcWindow);
     
@@ -131,6 +146,11 @@ void ArduinoComponent::Paint(HWND hWnd)
     gnd->Paint(hdcMemory,hdcWindow);
     power->Paint(hdcMemory,hdcWindow);
   } 
+}
+
+void ArduinoComponent::SaveYourself (FILE * fp)
+{
+  fprintf ( fp, "Arduino,%d,%d",x,y);
 }
 
 void ArduinoComponent::digitalWrite (int pin, int value )
@@ -160,9 +180,9 @@ void ArduinoComponent::AddMenu ()
 
 void ArduinoComponent::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
 {
-   Component::LoadBMap (bmpResource, hBitMap, bitMap );     
-   Component::LoadBMap ("REDDOT", hbmRedDot, bmRedDot);
-   Component::LoadBMap ("BLACKDOT", hbmBlackDot, bmBlackDot); 
+   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );     
+   ConnectedComponent::LoadBMap ("REDDOT", hbmRedDot, bmRedDot);
+   ConnectedComponent::LoadBMap ("BLACKDOT", hbmBlackDot, bmBlackDot); 
    gnd->LoadBMap (g_hInst);
    power->LoadBMap (g_hInst);   
    // Show image of digitalValues
@@ -173,26 +193,17 @@ void ArduinoComponent::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &b
 // Move the ports and any connections
 void ArduinoComponent::MoveTo (int _x, int _y)
 {	
+  ConnectedComponent::MoveTo (_x,_y);	
+
   x = _x-xOffset; // xOffset is where mouse was pressed
   y = _y-yOffset; // yOffset is where mouse was pressed
-  
-  /*
-  // Show image of digitalValues
-  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-  {  
-    if (digitalValues[i].blackRed)  
-      SelectObject(hdcMemory, hbmRedDot);
-    else
-      SelectObject(hdcMemory, hbmBlackDot);
-    BitBlt(hdcWindow, digitalValues[i].x+x,digitalValues[i].y+y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-    BitBlt(hdcWindow, digitalValues[i].x+x,digitalValues[i].y+y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
-  } 
-  */ 
   
   gnd->MoveTo (x+gnd->xOffset,y+gnd->yOffset);
   power->MoveTo (x+power->xOffset,y+power->yOffset);
   for (int i=0; i<MAX_DIGITAL_VALUES; i++)
     d[i]->MoveTo (x+digitalValues[i].x,y+digitalValues[i].y); 
+  // Move connections
+  ConnectedComponent::Move ();   
 }
 
 Pin * ArduinoComponent::PortSelected()
@@ -237,16 +248,16 @@ Pin * ArduinoComponent::PinActive ()
 // Check if the mouse has moved over one of the ports.
 // This should only set isActive to true (not move the item)
 void ArduinoComponent::HandleMouseMove (HWND hWnd, int _x, int _y)
-{
+{	
   gnd->HandleMouseMove ( hWnd, _x, _y );
   power->HandleMouseMove (hWnd, _x, _y );
   for (int i=0; i<MAX_DIGITAL_VALUES;i++)
-    d[i]->HandleMouseMove (hWnd, _x, _y);
+    d[i]->HandleMouseMove (hWnd, _x, _y); 
 }
 
 void ArduinoComponent::HandleMouseDown (HWND hWnd, int _x, int _y)
 {
-  Component::HandleMouseDown (hWnd,_x,_y);  // Does nothing
+  ConnectedComponent::HandleMouseDown (hWnd,_x,_y);  // Does nothing
   if (gnd->isActive) // we are over the ground spot     
     gnd->Select(!gnd->isSelected);
   else if (power->isActive)

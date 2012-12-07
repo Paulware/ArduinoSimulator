@@ -1,0 +1,8 @@
+Project Components
+Led,161,143
+MomentaryDepress,340,58
+Arduino,359,216
+Project Connections
+Led,161,143,LED +,Arduino,359,216,5v
+MomentaryDepress,340,58,Switch Left,Led,161,143,LED -
+MomentaryDepress,340,58,Switch Right,Arduino,359,216,gnd

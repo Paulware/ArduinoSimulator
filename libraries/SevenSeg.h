@@ -1,8 +1,7 @@
 #ifndef SEVENSEG_H
 #define SEVENSEG_H
-#include "Component.h"
-#include "Pin.h"
-class SevenSeg:public Component
+#include "ConnectedComponent.h"
+class SevenSeg:public ConnectedComponent
 {
   public:          
     // Constructor
@@ -23,6 +22,10 @@ class SevenSeg:public Component
     Pin * PinActive ();      
     Pin * segment[7];
     Pin * gnd; // Common Ground
+    void SaveYourself (FILE * fp);
+    void Select ( bool select);
+    Pin * FindPort ( char *);     
+    void Reset();
     
   private:
     // bool offOn;

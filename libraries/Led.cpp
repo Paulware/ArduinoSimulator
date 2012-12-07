@@ -1,6 +1,5 @@
 #include "Led.h"
-#include "Menus.h"
-Led::Led(int _x, int _y):Component()
+Led::Led(int _x, int _y):ConnectedComponent(_x,_y)
 { 
   offOn = false;
   gnd = new Pin(this);
@@ -18,15 +17,26 @@ Led::Led(int _x, int _y):Component()
   power->x = x + power->xOffset;
   power->y = y + power->yOffset; 
   power->SetName ("LED +");
-  gnd->SetName ("LED -");     
+  gnd->SetName ("LED -");   
+  SaveType ("LED");       
 }
 
 Led::~Led()
 {
-  if (gnd)
-    delete (gnd);
-  if (power)  
-    delete (power);
+  //if (gnd)
+  //  delete (gnd);
+  //if (power)  
+  //  delete (power);
+}
+
+Pin * Led::FindPort ( char * port)
+{
+  Pin * pin;
+  if (!strcmp (port,"LED -"))
+    pin = gnd;
+  if (!strcmp(port,"LED +"))
+    pin = power;
+  return pin;    
 }
 
 void Led::AddMenu ()
@@ -47,7 +57,7 @@ void Led::AddMenu ()
 
 void Led::HandleMouseDown (HWND hWnd, int _x, int _y)
 {
-  Component::HandleMouseDown (hWnd,_x,_y);
+  ConnectedComponent::HandleMouseDown (hWnd,_x,_y);
   if (gnd->isActive) // we are over the ground spot     
     gnd->Select(!gnd->isSelected);
   else if (power->isActive)
@@ -56,11 +66,13 @@ void Led::HandleMouseDown (HWND hWnd, int _x, int _y)
 
 // Move the ports and any connections
 void Led::MoveTo (int _x, int _y)
-{
+{	
   x = _x-xOffset;
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
   gnd->MoveTo (x + gnd->xOffset - gnd->bm.bmWidth/2, y + gnd->yOffset - gnd->bm.bmHeight/2 );
   power->MoveTo (x + power->xOffset - power->bm.bmWidth/2, y + power->yOffset - power->bm.bmHeight / 2);
+  // Move connections
+  ConnectedComponent::Move ();   
 }
 
 void Led::Select ( bool select)
@@ -93,9 +105,8 @@ Pin * Led::PinActive ()
 // This should only set isActive to true (not move the item)
 void Led::HandleMouseMove (HWND hWnd, int _x, int _y)
 {
-  Component::HandleMouseMove (hWnd,_x,_y);
   gnd->HandleMouseMove ( hWnd, _x, _y );
-  power->HandleMouseMove (hWnd, _x, _y );
+  power->HandleMouseMove (hWnd, _x, _y ); 
 }
 
 void Led::HandleMouseUp (HWND hWnd)
@@ -106,9 +117,14 @@ void Led::HandleMenu ( int command )
 {
 }
 
+void Led::SaveYourself (FILE * fp)
+{
+  fprintf ( fp, "Led,%d,%d",x,y);	
+}
+
 void Led::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
 {
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
+  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
   
   gnd->PaintStart ( _hdcWindow, _hdcMemory, _ps);
   power->PaintStart ( _hdcWindow, _hdcMemory, _ps);
@@ -133,7 +149,7 @@ void Led::Paint(HWND hWnd)
   if (hWnd == windowHandle)
   {
     // Paint the background
-    Component::Paint (hWnd);   
+    ConnectedComponent::Paint (hWnd);   
 
     // Paint the light on/off
     if (gnd->GetValue() == 1)
@@ -162,9 +178,9 @@ void Led::Paint(HWND hWnd)
 
 void Led::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
 {
-  Component::LoadBMap (bmpResource, hBitMap, bitMap );     
-  Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
-  Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
+  ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );     
+  ConnectedComponent::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
+  ConnectedComponent::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
   gnd->LoadBMap (g_hInst);
   power->LoadBMap (g_hInst);
 }

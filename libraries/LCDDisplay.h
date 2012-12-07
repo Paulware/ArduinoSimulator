@@ -1,10 +1,9 @@
 #ifndef LCDDISPLAY_H
 #define LCDDISPLAY_H
-#include "Component.h"
-#include "Pin.h"
+#include "ConnectedComponent.h"
 #define MAX_LCD_PINS 16
 
-class LCDDisplay:public Component
+class LCDDisplay:public ConnectedComponent
 {
   public:          
     // Constructor
@@ -14,8 +13,9 @@ class LCDDisplay:public Component
     void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
     void Paint(HWND hWnd);  
     void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );	 
-    void print ( char * ch );                   
-    void clear(HDC);
+    void print (char * ch);  
+	void print (int value);
+    void clear();
     bool clearTheText;
     void HandleMenu ( int command );
     void AddMenu ();     
@@ -24,7 +24,9 @@ class LCDDisplay:public Component
     void MoveTo (int, int); 
 	Pin * PinActive(); 
     Pin * PortSelected();
-  
+    void SaveYourself (FILE * fp);
+    void NotSavedYet(){};    
+ 
   private:
     bool offOn;
     char screen[80];

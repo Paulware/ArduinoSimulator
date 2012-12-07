@@ -1,0 +1,6 @@
+Project Components
+Arduino,248,64
+Led,0,0
+Project Connections
+Arduino,248,64,5v,Led,0,0,LED +
+Arduino,248,64,d15,Led,0,0,LED -
