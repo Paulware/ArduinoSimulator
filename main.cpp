@@ -70,7 +70,7 @@ int bitRead ( unsigned int value, int bit )
   return val;                
 }
 HWND viewConnectionHandle = 0; // definition outside class declaration
-#include "serialBasic.ino" // Code under test
+#include "example.ino" // Code under test
 
 void PaintComponents(HWND hWnd)
 {
