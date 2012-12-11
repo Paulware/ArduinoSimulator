@@ -26,6 +26,31 @@ void ConnectedComponent::PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTR
   	connection ->PaintStart (_hdcWindow, _hdcMemory, ps); 
 }
 
+void ConnectedComponent::DeleteConnection (Pin * pin)
+{
+  int index = 0;
+  Connection * connection;
+  bool shifting = false;
+  
+  while ((shifting || !index) && numConnections)
+  {
+  	shifting = false;
+  	index = 0;
+    while ((connection = connections[index]) && numConnections)
+    {
+  	  if (!shifting && ((connection->pin1 == pin) || (connection->pin2 == pin)))
+  	  {
+  	  	numConnections--;
+  	    delete (connection);
+  	    shifting = true;
+      }
+      if (shifting)
+        connections[index] = connections[index+1];
+  	  index++;
+    }
+  }  
+}
+
 // All pins should be updated before this procedure is caled
 void ConnectedComponent::Move()
 {

@@ -1,4 +1,5 @@
 #include "ArduinoComponent.h"
+#include "HighLevelMenu.h"
 // 14 Digitals plus 6 analogs can also be used
 ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
 { 
@@ -6,14 +7,14 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
   x = _x;
   y = _y;
   gnd = new Pin(this);
-  gnd->constValue = 0;
+  gnd->constValue.value = 0;
   gnd->xOffset = 310;
   gnd->yOffset = 319;
   gnd->x = x + gnd->xOffset;
   gnd->y = y + gnd->yOffset;
   gnd->SetName ("gnd");
   power = new Pin (this);
-  power->constValue = 1;
+  power->constValue.value = 1;
   power->xOffset = 278;
   power->yOffset = 319;
   power->x = x + power->xOffset;
@@ -99,10 +100,15 @@ Pin * ArduinoComponent::FindPort ( char * port)
 
 ArduinoComponent::~ArduinoComponent()
 {
-  //delete (gnd);
-  //delete (power);
-  //for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-  //  delete (d[i]);
+  HighLevelMenu::Instance()->DeleteConnection (gnd);
+  HighLevelMenu::Instance()->DeleteConnection (power);
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+    HighLevelMenu::Instance()->DeleteConnection (d[i]);
+	
+  delete (gnd);
+  delete (power);
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+    delete (d[i]);
 }
 
 Pin * ArduinoComponent::GetConnection (int which)

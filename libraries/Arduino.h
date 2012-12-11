@@ -17,4 +17,5 @@ extern int analogRead (int);
 extern float log (float);
 extern void pinMode (int, int);
 extern int bitRead (unsigned int, int);
+extern HWND viewConnectionHandle; // definition outside class declaration
 #endif

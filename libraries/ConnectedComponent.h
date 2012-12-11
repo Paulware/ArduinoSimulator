@@ -13,6 +13,8 @@ class ConnectedComponent:public Component
   public:          
     ConnectedComponent(int,int); 
     ~ConnectedComponent(); 
+    // Delete a connection is the specified pin matches one of the component's pins
+    void DeleteConnection (Pin * pin);
     void Connect (Pin *, Pin *,HINSTANCE);
     void SaveConnections(FILE * fp);
     void PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTRUCT & ps);
@@ -21,6 +23,7 @@ class ConnectedComponent:public Component
     Pin * pin1;
     Pin * pin2;
     virtual void SetPins();	
+    
 	// Create setter/accessor for next 2 items?		    
     int numConnections;
 	Connection * connections[CONNECTIONSPERCOMPONENT];	

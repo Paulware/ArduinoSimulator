@@ -33,5 +33,6 @@
 #define SAVEAS 119
 #define READPROJECT 120
 #define NEWPROJECT 121
+#define ADDRESISTOR 122
 
 #endif

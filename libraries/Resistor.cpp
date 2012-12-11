@@ -1,34 +1,35 @@
-#include "MomentaryDepress.h"
+#include "Resistor.h"
 #include "HighLevelMenu.h"
-MomentaryDepress::MomentaryDepress(int _x, int _y):ConnectedComponent(_x,_y)
+Resistor::Resistor(int _x, int _y, int _resistance):ConnectedComponent(_x,_y)
 { 
   input = new Pin(this);
   output = new Pin(this);
-  input->xOffset = 31;
-  input->yOffset = 87;
-  output->xOffset = 82;
-  output->yOffset = 71; 
+  input->xOffset = 0;
+  input->yOffset = 5;
+  output->xOffset = 67;
+  output->yOffset = 5; 
   x = _x;
   y = _y;
   input->x = x + input->xOffset;
   input->y = y + input->yOffset;    
   output->x = x + output->xOffset;
   output->y = y + output->yOffset; 
-  input->SetName ("Switch Left");
-  output->SetName ("Switch Right");  
-  SaveType ("MomentaryDepress"); 
-  depressed = false;           
+  input->SetName ("Left");
+  output->SetName ("Right");  
+  SaveType ("Resistor");          
 }
 
-MomentaryDepress::~MomentaryDepress()
+Resistor::~Resistor()
 {
+	
   HighLevelMenu::Instance()->DeleteConnection (input);
   HighLevelMenu::Instance()->DeleteConnection (output);
+	
   delete (input);
   delete (output);
 }
 
-Pin * MomentaryDepress::PinActive ()
+Pin * Resistor::PinActive ()
 {
   Pin * pin = 0;
   if (input->isActive)
@@ -39,29 +40,31 @@ Pin * MomentaryDepress::PinActive ()
 }
 
 // Check if the mouse has moved over one of the ports.
-void MomentaryDepress::HandleMouseMove (HWND hWnd, int _x, int _y)
+void Resistor::HandleMouseMove (HWND hWnd, int _x, int _y)
 {
   ConnectedComponent::HandleMouseMove (hWnd,_x,_y);
   input->HandleMouseMove  (hWnd, _x, _y );
   output->HandleMouseMove (hWnd, _x, _y );  
+  input->value.resistance = resistance;
+  output->value.resistance = resistance;
 }
 
-Pin * MomentaryDepress::FindPort ( char * port)
+Pin * Resistor::FindPort ( char * port)
 {
-  Pin * pin;
-  if (!strcmp (port,"Switch Left"))
+  Pin * pin = 0;
+  if (!strcmp (port,"Left"))
     pin = input;
-  if (!strcmp(port,"Switch Right"))
+  if (!strcmp(port,"Right"))
     pin = output;
   return pin;    
 }
 
-void MomentaryDepress::SaveYourself (FILE * fp)
+void Resistor::SaveYourself (FILE * fp)
 {
-  fprintf ( fp, "MomentaryDepress,%d,%d",x,y);
+  fprintf ( fp, "Resistor,%d,%d",x,y);
 }
 
-void MomentaryDepress::HandleMouseDown (HWND hWnd, int _x, int _y)
+void Resistor::HandleMouseDown (HWND hWnd, int _x, int _y)
 {
   if (input->isActive) // we are over the ground spot     
     input->Select(!input->isSelected);
@@ -69,41 +72,46 @@ void MomentaryDepress::HandleMouseDown (HWND hWnd, int _x, int _y)
     output->Select(!output->isSelected);  
   else
   {
-  	depressed = true;
     if (output->GetValue() != -1)
-      input->WriteValue ( output->GetValue());
+      input->WriteValue ( output->GetValue(), resistance);
     else if (input->GetValue () != -1)
-	  output->WriteValue ( input->GetValue());  
+	  output->WriteValue ( input->GetValue(), resistance);  
   }  
 }
 
-bool MomentaryDepress::IsSet()
+bool Resistor::IsSet()
 {
   bool set = input->IsSet () && output->IsSet();
   return set;
 }
 
-void MomentaryDepress::Reset ()
+void Resistor::Reset ()
 {
   input->Reset();
   output->Reset();
 }
 
-void MomentaryDepress::SetPins()
+void Resistor::SetPins()
 {
   ConnectedComponent::SetPins();
-  if (depressed)
-    Pin::BestValue (input->value,output->value);  
+  if (input->GetValue() == -1)
+    input->WriteValue(output->GetValue(), output->GetResistance());
+  if (output->GetValue() == -1)
+    output->WriteValue(input->GetValue(), output->GetResistance());    
 }
 
-void MomentaryDepress::HandleMouseUp (HWND hWnd)
+void Resistor::HandleMouseUp (HWND hWnd)
 {
+  /*
   if ((hWnd == windowHandle) && !PinActive())
-    Reset();
-  depressed = false;  
+  {
+    // Reset();
+  }
+  */
 }
 
-void MomentaryDepress::AddMenu ()
+
+void Resistor::AddMenu ()
 {
   HMENU  MainMenu;
   HMENU  FileMenu;
@@ -119,7 +127,7 @@ void MomentaryDepress::AddMenu ()
   (void) SetMenu(windowHandle,MainMenu);
 }
 
-void MomentaryDepress::Paint(HWND hWnd)
+void Resistor::Paint(HWND hWnd)
 {
   bool connected; 
   int buttonX = 29;
@@ -128,11 +136,6 @@ void MomentaryDepress::Paint(HWND hWnd)
   if (hWnd == windowHandle)
   {
     ConnectedComponent::Paint (hWnd); // Show Arduino image    
-
-    SelectObject(hdcMemory, hbmDepressed);
-     
-    BitBlt(hdcWindow, x+buttonX,y+buttonY, bmDepressed.bmWidth, bmDepressed.bmHeight, hdcMemory, 0, 0, SRCAND);
-    BitBlt(hdcWindow, x+buttonX,y+buttonY, bmDepressed.bmWidth, bmDepressed.bmHeight, hdcMemory, 0, 0, SRCPAINT);     
     
     // Paint the hotspot
     input->Paint(hdcMemory,hdcWindow);
@@ -141,17 +144,16 @@ void MomentaryDepress::Paint(HWND hWnd)
   }  
 }
 
-void MomentaryDepress::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap)
+void Resistor::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap)
 {
-   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );          
-   ConnectedComponent::LoadBMap ("DEPRESSED", hbmDepressed, bmDepressed);
+   // ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );          
+   ConnectedComponent::LoadBMap ("TENKOHMS", hBitMap, bitMap );          
    
    output->LoadBMap (g_hInst);
-   input->LoadBMap (g_hInst);
-   
+   input->LoadBMap (g_hInst);   
 }
 
-Pin * MomentaryDepress::PortSelected(){
+Pin * Resistor::PortSelected(){
   Pin * pin = 0;
   if (input->isSelected)
   	pin = input;
@@ -160,7 +162,7 @@ Pin * MomentaryDepress::PortSelected(){
   return pin;  
 }
 
-void MomentaryDepress::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
+void Resistor::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
 {
   ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
   
@@ -169,7 +171,7 @@ void MomentaryDepress::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTR
 }
 
 // [_x,_y] are absolute values
-void MomentaryDepress::MoveTo (int _x, int _y)
+void Resistor::MoveTo (int _x, int _y)
 {
 	
   x = _x-xOffset;
@@ -181,3 +183,4 @@ void MomentaryDepress::MoveTo (int _x, int _y)
   // Move connections
   ConnectedComponent::Move ();                   
 }
+

@@ -5,8 +5,8 @@ CPP      = g++.exe -D__DEBUG__
 CC       = gcc.exe -D__DEBUG__
 WINDRES  = windres.exe
 RES      = prjArduinoSimulator_private.res
-OBJ      = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o $(RES)
-LINKOBJ  = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o $(RES)
+OBJ      = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o libraries/Resistor.o $(RES)
+LINKOBJ  = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o libraries/Resistor.o $(RES)
 LIBS     = -L"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -mwindows   -g3
 INCS     = -I"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/ArduinoSimulator/libraries" -I"C:/arduino-1.0.2/libraries/ArduinoBASIC"
 CXXINCS  = -I"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/ArduinoSimulator/libraries" -I"C:/arduino-1.0.2/libraries/ArduinoBASIC"
@@ -97,6 +97,9 @@ libraries/ViewConnections.o: libraries/ViewConnections.cpp
 
 libraries/ConnectedComponent.o: libraries/ConnectedComponent.cpp
 	$(CPP) -c libraries/ConnectedComponent.cpp -o libraries/ConnectedComponent.o $(CXXFLAGS)
+
+libraries/Resistor.o: libraries/Resistor.cpp
+	$(CPP) -c libraries/Resistor.cpp -o libraries/Resistor.o $(CXXFLAGS)
 
 prjArduinoSimulator_private.res: prjArduinoSimulator_private.rc prjArduinoResource.rc 
 	$(WINDRES) -i prjArduinoSimulator_private.rc --input-format=rc -o prjArduinoSimulator_private.res -O coff 

@@ -5,10 +5,10 @@
 #include "SevenSeg.h"
 #include "LCDDisplay.h"
 #include "ArduinoComponent.h"
+#include "Resistor.h"
 #include "Connection.h"
 #include <stdio.h>
 #include <Commdlg.h>
-
 
 static HighLevelMenu * highLevelMenu;
 HighLevelMenu::HighLevelMenu(ViewConnections * _viewConnections):Component()
@@ -25,6 +25,25 @@ HighLevelMenu::HighLevelMenu(ViewConnections * _viewConnections):Component()
 
 HighLevelMenu::~HighLevelMenu()
 {
+  Connection * connection;
+  ConnectedComponent * component;
+  int index = 0;
+
+  index = 0;
+  while (component = components[index++])
+    delete (component);	
+}
+
+void HighLevelMenu::DeleteConnection (Pin * pin)
+{
+  int index = 0;
+  ConnectedComponent * component;
+  
+  while (component = components[index])
+  {
+    component->DeleteConnection (pin);
+    index++;
+  }
 }
 
 // Singleton pointer to class
@@ -76,7 +95,7 @@ void HighLevelMenu::DigitalWrite(int pin, int value)
   if (arduino = (ArduinoComponent *)FindComponent ( "Arduino"))
   {
   	Reset();
-    arduino->d[pin]->constValue = value;
+    arduino->d[pin]->constValue.value = value;
     ComputeSystem();
     Refresh();
   }
@@ -276,34 +295,38 @@ void HighLevelMenu::HandleMouseUp (HWND hWnd)
 
 void HighLevelMenu::AddMenu ()
 {     
-  HMENU  MainMenu, hSubMenu, hSubSubMenu;
+  HMENU  MainMenu, hAddMenu, hSaveMenu, hResistorMenu, hProjectMenu, hViewMenu,
+         hFileMenu;
   
   MainMenu = CreateMenu();
   SetMenu (windowHandle, MainMenu); 
   
-  hSubMenu = CreatePopupMenu();
-  AppendMenu (hSubMenu, MF_STRING, ADDLED,             "Led" );
-  AppendMenu (hSubMenu, MF_STRING, ADDMOMENTARYSWITCH, "Depress Switch");
-  AppendMenu (hSubMenu, MF_STRING, ADDSEVENSEGMENT,    "7Segment Display");
-  AppendMenu (hSubMenu, MF_STRING, ADDLCDDISPLAY,      "LCD Display");
-  AppendMenu (hSubMenu, MF_STRING, ADDARDUINO,         "Arduino");
-  InsertMenu (MainMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hSubMenu, "Add");
+  hAddMenu = CreatePopupMenu();
+  InsertMenu (MainMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hAddMenu, "Add");
+  AppendMenu (hAddMenu, MF_STRING, ADDLED,             "Led" );
+  AppendMenu (hAddMenu, MF_STRING, ADDMOMENTARYSWITCH, "Depress Switch");
+  AppendMenu (hAddMenu, MF_STRING, ADDSEVENSEGMENT,    "7Segment Display");
+  AppendMenu (hAddMenu, MF_STRING, ADDLCDDISPLAY,      "LCD Display");
+  AppendMenu (hAddMenu, MF_STRING, ADDARDUINO,         "Arduino");
   
-  hSubMenu = CreatePopupMenu();
-  AppendMenu (hSubMenu, MF_STRING, VIEWARDUINOCONNECTIONS, "Arduino Connections");
-  InsertMenu ( MainMenu, 0, MF_POPUP|MF_BYPOSITION, (UINT_PTR)hSubMenu, "View");
+  hResistorMenu = CreatePopupMenu();
+  InsertMenu (hAddMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hResistorMenu, "Resistor");
+  AppendMenu (hResistorMenu, MF_STRING, ADDRESISTOR,        "10k ohm");
     
-  hSubMenu = CreatePopupMenu();
-  AppendMenu (hSubMenu, MF_STRING, NEWPROJECT, "New Project");
-  AppendMenu (hSubMenu, MF_STRING, READPROJECT, "Open Project");
-
-  hSubSubMenu = CreatePopupMenu();
-  AppendMenu (hSubSubMenu, MF_STRING, SAVE, "Save");
-  AppendMenu (hSubSubMenu, MF_STRING, SAVEAS, "Save As");
-  InsertMenu (hSubMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hSubSubMenu, "Save Project");
-  
-  AppendMenu (hSubMenu, MF_STRING, 1005, "Exit");
-  InsertMenu ( MainMenu, 0, MF_POPUP|MF_BYPOSITION, (UINT_PTR)hSubMenu, "File");
+  hViewMenu = CreatePopupMenu();
+  AppendMenu (hViewMenu, MF_STRING, VIEWARDUINOCONNECTIONS, "Arduino Connections");
+  InsertMenu ( MainMenu, 0, MF_POPUP|MF_BYPOSITION, (UINT_PTR)hViewMenu, "View");
+    
+  hProjectMenu = CreatePopupMenu();
+  AppendMenu (hProjectMenu, MF_STRING, NEWPROJECT, "New Project");
+  AppendMenu (hProjectMenu, MF_STRING, READPROJECT, "Open Project");
+  AppendMenu (hProjectMenu, MF_STRING, SAVE, "Save");
+  AppendMenu (hProjectMenu, MF_STRING, SAVEAS, "Save As");
+  InsertMenu (MainMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hProjectMenu, "Project");
+ 
+  hFileMenu = CreatePopupMenu(); 
+  AppendMenu (hFileMenu, MF_STRING, 1005, "Exit");
+  InsertMenu ( MainMenu, 0, MF_POPUP|MF_BYPOSITION, (UINT_PTR)hFileMenu, "File");
   
   //  activate menu 
   (void) SetMenu(windowHandle,MainMenu);
@@ -531,8 +554,8 @@ void HighLevelMenu::NewProject()
 
 void HighLevelMenu::AddComponent (char * typeName, int x, int y)
 {
-  //SevenSeg * sevenSegment;	
-  //ArduinoComponent * arduino;
+  SevenSeg * sevenSegment;	
+  ArduinoComponent * arduino;
   if (!strcmp ( "Arduino",typeName))
   {
  	components[numComponents] = new ArduinoComponent ( x, y);
@@ -548,6 +571,11 @@ void HighLevelMenu::AddComponent (char * typeName, int x, int y)
     components[numComponents] = new MomentaryDepress ( x, y);
     components[numComponents++]->Show (g_hInst, windowHandle, "MOMENTARYDEPRESS");	
   }
+  else if (!strcmp ("Resistor",typeName))
+  {
+    components[numComponents] = new Resistor ( x, y, 10000);
+    components[numComponents++]->Show (g_hInst, windowHandle, "TENKOHMS");	
+  }  
   else if (!strcmp ("LCDDisplay", typeName))
   {
     components[numComponents] = new LCDDisplay ( x, y);
@@ -556,11 +584,9 @@ void HighLevelMenu::AddComponent (char * typeName, int x, int y)
   else if (!strcmp ("Seven Segment", typeName))
   {
     components[numComponents] = new SevenSeg ( x, y);
-    components[numComponents++]->Show (g_hInst, windowHandle, "SEVENSEGMENT");	
-    // byte sevenPins[]={2,3,4,5,6,13,14};      
-    // MessageBox ( 0,"Now connect pins", "",0);
-    // sevenSegment = (SevenSeg *)components[numComponents++];
-    
+    sevenSegment = (SevenSeg *)components[numComponents];
+    components[numComponents++]->Show (g_hInst, windowHandle, "SEVENSEGMENT");
+
     /*
     arduino = (ArduinoComponent *)FindComponent ("Arduino");
     arduino->Connect (arduino->d[2], sevenSegment->segment[0], g_hInst);
@@ -569,16 +595,53 @@ void HighLevelMenu::AddComponent (char * typeName, int x, int y)
     arduino->Connect (arduino->d[5], sevenSegment->segment[3], g_hInst);
     arduino->Connect (arduino->d[6], sevenSegment->segment[4], g_hInst);
     arduino->Connect (arduino->d[13], sevenSegment->segment[5], g_hInst);
-    arduino->Connect (arduino->d[14], sevenSegment->segment[6], g_hInst);
-    */ 
+    arduino->Connect (arduino->d[14], sevenSegment->segment[6], g_hInst); 
+	arduino->Connect (arduino->gnd, sevenSegment->gnd, g_hInst);    
+	*/
   }
   else
     MessageBox (0,"Could not find a component",typeName,0);
 }
 
+void HighLevelMenu::HandleKeyUp ( int scanCode) 
+{
+  bool debug = false;
+  char code[20];
+  ConnectedComponent * component;
+  Connection * connection;
+  int index = 0;
+  bool shifting = false;
+  
+  switch (scanCode)
+  {
+  	case 46:   
+      while (component = components[index])
+      {
+        if (component->isActive && !shifting)
+        {	
+		  delete (component);
+		  component = 0; // necessary?
+          shifting = true;
+          Refresh();
+          numComponents--;
+        } 
+        if (shifting)
+          components[index] = components[index+1];
+		index++;    
+      } 
+   	  
+   	  break;
+    default:
+      itoa (scanCode, code, 10); 
+      if (debug)
+        MessageBox ( 0,code, "Scan Code", 0);
+      break;      	  
+  }
+}
+
 void HighLevelMenu::ReadProject(char * filename)
-{ 	
- FILE * fp;	
+{
+ FILE * fp;
  Connection * connection;
  ConnectedComponent * component;
  ConnectedComponent * component1;
@@ -588,8 +651,7 @@ void HighLevelMenu::ReadProject(char * filename)
  int index = 0;
  Pin * port1;
  Pin * port2;
- 
- 
+  
  if (fp = fopen (filename,"r"))
  {
    NewProject();	
@@ -731,6 +793,10 @@ void HighLevelMenu::HandleMenu (int command)
 	  
     case ADDARDUINO:
       AddComponent ("Arduino",0,0);
+    break;
+    
+    case ADDRESISTOR:
+      AddComponent ("Resistor",0,0);
     break;
     
 	case SAVEAS:

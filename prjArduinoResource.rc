@@ -12,4 +12,5 @@ UPDOWN BITMAP "images/upDown.bmp"
 LCDDISPLAY BITMAP "images/4x20LcdDisplay.bmp"
 LCDPIN BITMAP "images/LCDPin.bmp"
 DOT BITMAP "images/dot.bmp"
+TENKOHMS BITMAP "images/10kOhms.bmp"
 

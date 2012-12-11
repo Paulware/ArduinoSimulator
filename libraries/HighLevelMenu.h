@@ -21,7 +21,9 @@ class HighLevelMenu:public Component
     void AddComponent (char * typeName, int x, int y);
     void HandleMouseDown (HWND hWnd, int x, int y);
     void HandleMouseUp (HWND hWnd);
-    void NewProject();
+    void HandleKeyUp ( int scanCode); 
+    void DeleteConnection (Pin * pin);
+	void NewProject();
     void SaveProject(char *);
     void NotSavedYet ();    
     void ReadProject(char *);

@@ -69,8 +69,7 @@ int bitRead ( unsigned int value, int bit )
     val = 1;
   return val;                
 }
-HWND viewConnectionHandle = 0; // definition outside class declaration
-#include "example.ino" // Code under test
+#include "example.ino"         // Actual arduino script
 
 void PaintComponents(HWND hWnd)
 {
@@ -115,7 +114,7 @@ int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrev,LPSTR CmdLine,int CmdShow)
 
  // Draw all the windows
  hWnd = highLevelMenu.DrawWindow ( "High Level Menu", hInst, "", 20, 10 );
- (void) keyboardMonitor.DrawWindow ( "Keyboard Monitor", hInst, "", 20,120 );
+ (void) keyboardMonitor.DrawWindow ( "Serial Monitor", hInst, "", 20,120 );
  
  // Setup timer for calling loop
  SetTimer(hWnd,1,5,NULL); // Will create a WM_Timer message Every 5 ms
@@ -213,9 +212,11 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
       /*     
       case WM_KEYDOWN:
         break;  
+      */  
       case WM_KEYUP:
+      	highLevelMenu.HandleKeyUp(LOWORD(wParam));
         break;       
-      */
+      
     }
     
   

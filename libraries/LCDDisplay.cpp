@@ -143,7 +143,7 @@ void LCDDisplay::print (char * line)
 }
 
 LCDDisplay::~LCDDisplay()
-{
+{	
 }
 
 void LCDDisplay::Paint(HWND hWnd)

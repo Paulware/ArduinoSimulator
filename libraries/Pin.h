@@ -4,6 +4,12 @@
 //#include "Connection.h"
 
 #define MAX_PIN_CONNECTIONS 10
+struct PinValueType
+{
+  int value;
+  int resistance;
+};
+
 class Pin
 {
   public:          
@@ -12,9 +18,11 @@ class Pin
     ~Pin(); // Clean up the connection
     void SetName(char *);
 	int GetValue();
+	int GetResistance();
 	void Reset();
 	bool IsSet();
-	void WriteValue (int);
+	void WriteValue (int value, int resistance);
+	void WriteValue (int value);
 	void Connect ( Pin * pin );
 	void LoadBMap ( HINSTANCE);
 	void LoadBMap ( HINSTANCE, char *);
@@ -23,6 +31,8 @@ class Pin
     void Paint(HDC hdcMemory, HDC hdcWindow);
     void Select (bool);
     void MoveTo (int, int);
+    static void BestValue (PinValueType &v1, PinValueType &v2);
+    
     int x;
     int y;
     int xOffset;
@@ -31,12 +41,14 @@ class Pin
     bool IsSelected();
     bool isSelected;
     char * name;   
-    int constValue;
     bool isActive;    // Cannot use components because parent has many pins
     Component * parent;
+    
+    PinValueType value;
+    PinValueType constValue;
+    
 
   private:
-    int value;
     HBITMAP hbm;
     HINSTANCE myInst;
 };

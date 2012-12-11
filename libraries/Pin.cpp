@@ -1,7 +1,11 @@
 #include "Pin.h"
 Pin::Pin(Component * _parent)
 { 
-  value = -1;
+  value.value = -1;
+  value.resistance = 0;
+  constValue.value = -1;	 
+  constValue.resistance = 0;
+  
   parent = _parent;
   x = 0;
   y = 0; 
@@ -10,7 +14,6 @@ Pin::Pin(Component * _parent)
   isActive = false;
   isSelected = false;
   name = 0; 
-  constValue = -1;	       
 }
 
 Pin::~Pin()
@@ -84,10 +87,15 @@ void Pin::LoadBMap ( HINSTANCE h_Inst, char * bmpResource)
 
 void Pin::Reset()
 {
-  if (constValue == -1)
-    value = -1;
+  if (constValue.value == -1)
+    value.value = -1;
   else
-    value = constValue;  
+    value.value = constValue.value;  
+    
+  if (constValue.resistance != 0)
+    value.resistance = constValue.resistance;
+  else
+    value.resistance = 0;      
 }
 
 bool Pin::IsSet()
@@ -98,31 +106,55 @@ bool Pin::IsSet()
   return set;  
 }
 
+int Pin::GetResistance()
+{
+  return value.resistance;
+}
+
+void Pin::BestValue (PinValueType &v1, PinValueType &v2)
+{
+  if (v1.value != -1) // v1 is set 
+    if (v2.value != -1) // v2 is set 
+      if (v2.resistance < v1.resistance) // Path of least resistance 
+        v1 = v2;
+      else if (v1.resistance < v2.resistance) // for debug only
+        v2 = v1;
+      else 
+	    v2 = v1;
+	else // v2 is not set 
+	  v2 = v1;	  
+  else // v1 is not set
+    v1 = v2;
+}
+
 // Check constValue, actual value or connected value
 int Pin::GetValue ()
 { 
-  Pin * pin;
-  char * myName = name;
   
   int val = -1;
-  if (constValue != -1)
-    val = constValue;
-  else if (value != -1)
-    val = value;
+  if (constValue.value != -1)
+    val = constValue.value;
+  else if (value.value != -1)
+    val = value.value;
     
   if (val == 1)
     val = 1;  
   return val;
 }
 
+void Pin::WriteValue(int val, int resistance)
+{
+  value.value = val;
+  value.resistance = resistance;
+}
+
 void Pin::WriteValue(int val)
 {
-  value = val;
+  value.value = val;
 }
 
 bool Pin::IsSelected ()
 {
   return isSelected;
 }
-
 

@@ -1,4 +1,5 @@
 #include "SevenSeg.h"
+#include "HighLevelMenu.h"
 SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
 { 
   int xs[] = { 20, 45, 70,  5, 20, 45, 70};                       
@@ -123,6 +124,11 @@ Pin * SevenSeg::PinActive ()
 
 SevenSeg::~SevenSeg()
 {
+
+  HighLevelMenu::Instance()->DeleteConnection (gnd);	
+  for (int i=0; i<7; i++)
+    HighLevelMenu::Instance()->DeleteConnection (segment[i]);
+	
   delete (gnd);                    
   for (int i=0; i<7; i++)
     delete (segment[i]);

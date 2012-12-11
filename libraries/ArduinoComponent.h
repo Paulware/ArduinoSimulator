@@ -23,7 +23,7 @@ class ArduinoComponent:public ConnectedComponent
     void AddMenu ();    
     void HandleMouseDown (HWND hWnd, int _x, int _y); 
     void HandleMouseMove (HWND hWnd, int _x, int _y);    
-    void SaveYourself (FILE * fp);       
+    void SaveYourself (FILE * fp);         
     Pin * FindPort ( char *); 
     bool IsSet();
     void Reset();	   

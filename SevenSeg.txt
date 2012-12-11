@@ -1,16 +1,18 @@
 Project Components
-Arduino,334,130
-MomentaryDepress,488,11
-Seven Segment,549,514
+Arduino,378,205
+Seven Segment,303,212
+Resistor,445,65
+MomentaryDepress,658,11
 Project Connections
-Arduino,334,130,d02,Seven Segment,549,514,segment[0]
-Arduino,334,130,d03,Seven Segment,549,514,segment[1]
-Arduino,334,130,d04,Seven Segment,549,514,segment[2]
-Arduino,334,130,d05,Seven Segment,549,514,segment[3]
-Arduino,334,130,d06,Seven Segment,549,514,segment[4]
-Arduino,334,130,d13,Seven Segment,549,514,segment[5]
-Arduino,334,130,d14,Seven Segment,549,514,segment[6]
-Arduino,334,130,gnd,MomentaryDepress,488,11,Switch Right
-Arduino,334,130,5v,MomentaryDepress,488,11,Switch Left
-Arduino,334,130,d10,MomentaryDepress,488,11,Switch Left
-Arduino,334,130,gnd,Seven Segment,549,514,gnd
+Arduino,378,205,d02,Seven Segment,303,212,segment[0]
+Arduino,378,205,d03,Seven Segment,303,212,segment[1]
+Arduino,378,205,d04,Seven Segment,303,212,segment[2]
+Arduino,378,205,d05,Seven Segment,303,212,segment[3]
+Arduino,378,205,d06,Seven Segment,303,212,segment[4]
+Arduino,378,205,d13,Seven Segment,303,212,segment[5]
+Arduino,378,205,d14,Seven Segment,303,212,segment[6]
+Arduino,378,205,gnd,Seven Segment,303,212,gnd
+Arduino,378,205,gnd,MomentaryDepress,658,11,Switch Right
+Arduino,378,205,5v,Resistor,445,65,Left
+Arduino,378,205,d10,MomentaryDepress,658,11,Switch Left
+Resistor,445,65,Right,MomentaryDepress,658,11,Switch Left

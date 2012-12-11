@@ -3,7 +3,7 @@
 #include "ArduinoComponent.h"
 #include "HighLevelMenu.h"
 
-extern HWND viewConnectionHandle; // definition outside class declaration
+HWND viewConnectionHandle=0; // Handle to this classe' window
 
 ViewConnections::ViewConnections(int _x, int _y):Component()
 { 
@@ -65,9 +65,8 @@ void ViewConnections::Paint(HWND hWnd)
 
 HWND ViewConnections::DrawWindow (HINSTANCE hInst)
 {                            
-  HWND hWnd = Component::DrawWindow("Arduino Connections", hInst, "", x, y, 500,500);
-  viewConnectionHandle = hWnd;
+  viewConnectionHandle = Component::DrawWindow("Arduino Connections", hInst, "", x, y, 500,500);
   Paint (windowHandle);
   // AddMenu();
-  return hWnd;
+  return viewConnectionHandle;
 }
