@@ -5,11 +5,11 @@ CPP      = g++.exe -D__DEBUG__
 CC       = gcc.exe -D__DEBUG__
 WINDRES  = windres.exe
 RES      = prjArduinoSimulator_private.res
-OBJ      = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o libraries/Resistor.o $(RES)
-LINKOBJ  = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o libraries/Resistor.o $(RES)
+OBJ      = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o libraries/Resistor.o libraries/Keypad.o libraries/KeypadDevice.o libraries/utility/Key.o $(RES)
+LINKOBJ  = main.o libraries/EEPROM.o libraries/I2C_eeprom.o libraries/SerialClass.o libraries/Pin.o libraries/Led.o libraries/ArduinoComponent.o libraries/Component.o libraries/HighLevelMenu.o libraries/KeyboardMonitor.o libraries/MomentaryDepress.o libraries/SevenSeg.o libraries/LCDDisplay.o ../arduino-1.0.2/libraries/ArduinoBASIC/ArduinoBASIC.o ../arduino-1.0.2/libraries/ArduinoBASIC/Components.o ../arduino-1.0.2/libraries/ArduinoBASIC/DebugUtilities.o ../arduino-1.0.2/libraries/ArduinoBASIC/PSTRStrings.o ../arduino-1.0.2/libraries/ArduinoBASIC/ScriptEEPROM.o ../arduino-1.0.2/libraries/ArduinoBASIC/SevenSegment.o libraries/LiquidCrystal.o libraries/Line.o libraries/Connection.o libraries/ViewConnections.o libraries/ConnectedComponent.o libraries/Resistor.o libraries/Keypad.o libraries/KeypadDevice.o libraries/utility/Key.o $(RES)
 LIBS     = -L"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -mwindows   -g3
-INCS     = -I"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/ArduinoSimulator/libraries" -I"C:/arduino-1.0.2/libraries/ArduinoBASIC"
-CXXINCS  = -I"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/ArduinoSimulator/libraries" -I"C:/arduino-1.0.2/libraries/ArduinoBASIC"
+INCS     = -I"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/ArduinoSimulator/libraries" -I"C:/arduino-1.0.2/libraries/ArduinoBASIC" -I"C:/ArduinoSimulator/libraries/utility"
+CXXINCS  = -I"C:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/ArduinoSimulator/libraries" -I"C:/arduino-1.0.2/libraries/ArduinoBASIC" -I"C:/ArduinoSimulator/libraries/utility"
 BIN      = prjArduinoSimulator.exe
 CXXFLAGS = $(CXXINCS)  -w -Wall -Wfatal-errors -g3
 CFLAGS   = $(INCS)  -w -Wall -Wfatal-errors -g3
@@ -100,6 +100,15 @@ libraries/ConnectedComponent.o: libraries/ConnectedComponent.cpp
 
 libraries/Resistor.o: libraries/Resistor.cpp
 	$(CPP) -c libraries/Resistor.cpp -o libraries/Resistor.o $(CXXFLAGS)
+
+libraries/Keypad.o: libraries/Keypad.cpp
+	$(CPP) -c libraries/Keypad.cpp -o libraries/Keypad.o $(CXXFLAGS)
+
+libraries/KeypadDevice.o: libraries/KeypadDevice.cpp
+	$(CPP) -c libraries/KeypadDevice.cpp -o libraries/KeypadDevice.o $(CXXFLAGS)
+
+libraries/utility/Key.o: libraries/utility/Key.cpp
+	$(CPP) -c libraries/utility/Key.cpp -o libraries/utility/Key.o $(CXXFLAGS)
 
 prjArduinoSimulator_private.res: prjArduinoSimulator_private.rc prjArduinoResource.rc 
 	$(WINDRES) -i prjArduinoSimulator_private.rc --input-format=rc -o prjArduinoSimulator_private.res -O coff 

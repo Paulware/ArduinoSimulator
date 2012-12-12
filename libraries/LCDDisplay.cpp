@@ -3,6 +3,7 @@
 LCDDisplay::LCDDisplay(int _x, int _y): ConnectedComponent(_x,_y)
 { 
   offOn = false;
+  char pinName[] = "pin00";
   x = _x;
   y = _y;
   for (int i=0; i<80; i++)
@@ -11,19 +12,29 @@ LCDDisplay::LCDDisplay(int _x, int _y): ConnectedComponent(_x,_y)
   
   for (int i=0; i<MAX_LCD_PINS; i++)
   {
+  	pinName [4] = (i % 10) + '0';
+  	pinName [3] = (i / 10) + '0';
+  	
     pin[i] = new Pin(this);
 	pin[i]->WriteValue (0);
 	if (i<3)  
-	  pin[i]->xOffset = 175 + i*11;
+	  pin[i]->xOffset = 168 + i*11;
 	else if (i<9)
-	  pin[i]->xOffset = 174 + i*12;  
+	  pin[i]->xOffset = 167 + i*12;  
 	else 
-	  pin[i]->xOffset = 172 + i*12;  
-	pin[i]->yOffset = 265;
+	  pin[i]->xOffset = 165 + i*12;  
+	pin[i]->yOffset = 258;
 	pin[i]->x = x + pin[i]->xOffset;
 	pin[i]->y = y + pin[i]->yOffset;
+	pin[i]->SetName (pinName);	
   }	 
   SaveType ("LCDDisplay");   
+}
+
+void LCDDisplay::Select ( bool select)
+{
+  for (int i=0; i<MAX_LCD_PINS; i++)
+    pin[i]->Select (false);
 }
 
 void LCDDisplay::print ( int value)
@@ -203,8 +214,7 @@ void LCDDisplay::MoveTo (int _x, int _y)
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
   for (int i=0; i<MAX_LCD_PINS; i++)
   {
-    pin[i]->MoveTo ( x + pin[i]->xOffset - pin[i]->bm.bmWidth/2,
-                     y + pin[i]->yOffset - pin[i]->bm.bmHeight/2);
+    pin[i]->MoveTo ( x + pin[i]->xOffset, y + pin[i]->yOffset);
   }
   // Move connections
   ConnectedComponent::Move (); 
@@ -228,5 +238,23 @@ void LCDDisplay::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_
   
   for (int i=0; i<MAX_LCD_PINS; i++)
     pin[i]->PaintStart ( _hdcWindow, _hdcMemory, _ps);
+}
+
+Pin * LCDDisplay::FindPort ( char * port)
+{
+  char pinName[] = "pin00";
+  Pin * p = 0;
+  
+  for (int i=0; i<MAX_LCD_PINS; i++)
+  {
+  	pinName[4] = (i % 10) + '0';
+  	pinName[3] = (i/10) + '0';
+  	if (!strcmp (port,pinName))
+  	{
+  	  p = pin[i]; 
+  	  break;
+  	}
+  }
+  return p;    
 }
 

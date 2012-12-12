@@ -34,5 +34,6 @@
 #define READPROJECT 120
 #define NEWPROJECT 121
 #define ADDRESISTOR 122
+#define ADD4X4KEYPAD 123
 
 #endif

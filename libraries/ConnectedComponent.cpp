@@ -20,7 +20,6 @@ void ConnectedComponent::PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTR
 {
   Connection * connection;
   int index = 0;
-  
   Component::PaintStart (_hdcWindow, _hdcMemory, ps );
   while (connection = connections[index++])
   	connection ->PaintStart (_hdcWindow, _hdcMemory, ps); 

@@ -7,6 +7,8 @@
 #define prog_char char
 #define OUTPUT 1
 #define INPUT 0
+#define HIGH 1
+#define LOW 0
 extern char pgm_read_byte ( char * );
 extern SerialClass Serial;
 extern unsigned long millis();
@@ -18,4 +20,5 @@ extern float log (float);
 extern void pinMode (int, int);
 extern int bitRead (unsigned int, int);
 extern HWND viewConnectionHandle; // definition outside class declaration
+extern void bitWrite (unsigned int &value, int bit, int val);
 #endif

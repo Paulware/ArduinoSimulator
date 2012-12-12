@@ -1,39 +1,43 @@
-#ifndef LCDDISPLAY_H
-#define LCDDISPLAY_H
+#ifndef KEYPADDEVICE_H
+#define KEYPADDEVICE_H
 #include "ConnectedComponent.h"
-#define MAX_LCD_PINS 16
-
-class LCDDisplay:public ConnectedComponent
+class KeypadDevice:public ConnectedComponent
 {
   public:          
     // Constructor
-    LCDDisplay(int, int); 
+    KeypadDevice(int, int); 
     // Destructor
-    ~LCDDisplay();
+    ~KeypadDevice();
     void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
     void Paint(HWND hWnd);  
     void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );	 
-    void print (char * ch);  
-	void print (int value);
-    void clear();
     bool clearTheText;
     void HandleMenu ( int command );
     void AddMenu ();     
     void HandleMouseMove (HWND hWnd, int _x, int _y);  
-    void HandleMouseDown (HWND hWnd, int _x, int _y);  
+    void HandleMouseDown (HWND hWnd, int _x, int _y); 
+    void HandleMouseUp (HWND hWnd);
+    
     void MoveTo (int, int); 
 	Pin * PinActive(); 
     Pin * PortSelected();
     void SaveYourself (FILE * fp);
     void NotSavedYet(){}; 
-    void Select ( bool select);
-    Pin * FindPort ( char * port);    
- 
+	void Select (bool);  
+    bool IsSet();
+    void Reset();
+    Pin * FindPort ( char * port);
+    static char keypadChars[16];  
+	static char getKey;  
+	 
   private:
-    bool offOn;
-    char screen[80];
-    void showScreen(HDC hdcWindow);
-    Pin * pin[MAX_LCD_PINS];
+  	
+	static int const MAX_KEYPAD_PINS = 8;
+    Pin * pin[MAX_KEYPAD_PINS];
+    
+    static int const MAX_KEYPADS = 16;
+    COORD pads[MAX_KEYPADS];
+    
     
     HBITMAP       hbmPinDot;
     BITMAP        bmPinDot;

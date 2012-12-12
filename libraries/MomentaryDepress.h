@@ -22,6 +22,7 @@ class MomentaryDepress:public ConnectedComponent
     bool IsSet();
     void SetPins();
     void Reset();
+    void Select (bool){};    
     void SaveYourself (FILE * fp);        
     Pin * FindPort ( char * port);
     Pin * input;

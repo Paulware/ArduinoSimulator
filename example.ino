@@ -2,11 +2,26 @@
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <SevenSegment.h>
+#include <Keypad.h>
 
+const byte ROWS = 4; //four rows
+const byte COLS = 4; //three columns
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {5, 4, 3, 2}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {9, 8, 7, 6}; //connect to the column pinouts of the keypad
+
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+  
 ArduinoBASIC arduinoBASIC = ArduinoBASIC ();
 DebugUtilities debugUtils;
 LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
 SevenSegment sevenSegment (2,3,4,5,6,13,14);
+
 
 #define NUMBER_OF_STEPS 25
 PSTRStrings eProgram = PSTRStrings(NUMBER_OF_STEPS);
@@ -61,6 +76,14 @@ void loop()
   bool d10;
   static int segValue = 0;
   
+  
+  char key = keypad.getKey();
+  
+  if (key){
+    Serial.println(key);
+  } 
+   
+  
   if (millis() > blinkyTime)
   {
   	blinkyTime = millis() + 1000;
@@ -78,6 +101,7 @@ void loop()
     }
   }
 
+  
   d10 = digitalRead(10);
   if (!d10 && last10)
   {
@@ -99,5 +123,6 @@ void loop()
     paused = false;
     arduinoBASIC.handleChar(eProgram, Serial.read()); 
   }  
+  
 }
 

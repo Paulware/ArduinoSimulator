@@ -23,7 +23,7 @@ class ConnectedComponent:public Component
     Pin * pin1;
     Pin * pin2;
     virtual void SetPins();	
-    
+    virtual void Select (bool) = 0;    
 	// Create setter/accessor for next 2 items?		    
     int numConnections;
 	Connection * connections[CONNECTIONSPERCOMPONENT];	

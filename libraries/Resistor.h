@@ -23,6 +23,8 @@ class Resistor:public ConnectedComponent
     void SetPins();
     void Reset();
     void SaveYourself (FILE * fp);        
+    void Select (bool){};
+    
     Pin * FindPort ( char * port);
     Pin * input;
     Pin * output;

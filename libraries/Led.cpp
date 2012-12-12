@@ -6,9 +6,9 @@ Led::Led(int _x, int _y):ConnectedComponent(_x,_y)
   power = new Pin(this);
   gnd->WriteValue (-1);
   power->WriteValue (-1);
-  power->xOffset = 45;
+  power->xOffset = 38;
   power->yOffset = 170;
-  gnd->xOffset = 61;
+  gnd->xOffset = 55;
   gnd->yOffset = 140;
   x = _x;
   y = _y;
@@ -69,8 +69,8 @@ void Led::MoveTo (int _x, int _y)
 {	
   x = _x-xOffset;
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
-  gnd->MoveTo (x + gnd->xOffset - gnd->bm.bmWidth/2, y + gnd->yOffset - gnd->bm.bmHeight/2 );
-  power->MoveTo (x + power->xOffset - power->bm.bmWidth/2, y + power->yOffset - power->bm.bmHeight / 2);
+  gnd->MoveTo (x + gnd->xOffset, y + gnd->yOffset);
+  power->MoveTo (x + power->xOffset, y + power->yOffset);
   // Move connections
   ConnectedComponent::Move ();   
 }

@@ -6,6 +6,7 @@
 #include "LCDDisplay.h"
 #include "ArduinoComponent.h"
 #include "Resistor.h"
+#include "KeypadDevice.h"
 #include "Connection.h"
 #include <stdio.h>
 #include <Commdlg.h>
@@ -251,7 +252,7 @@ void HighLevelMenu::HandleMouseUp (HWND hWnd)
   };
   Pin * pin;
   Pin * pin1 = 0;
-  Pin * pin2;
+  Pin * pin2 = 0;
   
   ConnectedComponent * component1;
   ConnectedComponent * component2;
@@ -307,6 +308,7 @@ void HighLevelMenu::AddMenu ()
   AppendMenu (hAddMenu, MF_STRING, ADDMOMENTARYSWITCH, "Depress Switch");
   AppendMenu (hAddMenu, MF_STRING, ADDSEVENSEGMENT,    "7Segment Display");
   AppendMenu (hAddMenu, MF_STRING, ADDLCDDISPLAY,      "LCD Display");
+  AppendMenu (hAddMenu, MF_STRING, ADD4X4KEYPAD,       "4x4 Keypad");
   AppendMenu (hAddMenu, MF_STRING, ADDARDUINO,         "Arduino");
   
   hResistorMenu = CreatePopupMenu();
@@ -365,54 +367,53 @@ void GetToken ( FILE * fp, char * line)
 }
 
 class OpenFileDialog {
-	public: 
-	  OpenFileDialog ()
-	  {
-	  };
+  public: 
+    OpenFileDialog (){};
 	  
-	  void Open (const char * filter)
-	  {
-        // open a file name
-	    ZeroMemory( &ofn , sizeof( ofn));
-	    ofn.lStructSize = sizeof ( ofn );
-    	ofn.hwndOwner = NULL  ;   
-	    ofn.lpstrFile = szFile ;
-   	    ofn.lpstrFile[0] = '\0';
-	    ofn.nMaxFile = sizeof( szFile );
-	    // ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-	    //ofn.lpstrFilter = "Text\0*.TXT\0";
-	    ofn.lpstrFilter=filter;
-	    ofn.nFilterIndex =1;
-	    ofn.lpstrFileTitle = NULL ;
-	    ofn.nMaxFileTitle = 0 ;
-	    ofn.lpstrInitialDir=NULL ;
-	    ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-	    GetOpenFileName( &ofn );
-	    // Now simpley display the file name 
-	    // MessageBox ( NULL , ofn.lpstrFile , "File Name" , MB_OK);
-	  };
+    void Open (const char * filter)
+    {
+      // open a file name
+      ZeroMemory( &ofn , sizeof( ofn));
+      ofn.lStructSize = sizeof ( ofn );
+      ofn.hwndOwner = NULL  ;   
+	  ofn.lpstrFile = szFile ;
+   	  ofn.lpstrFile[0] = '\0';
+	  ofn.nMaxFile = sizeof( szFile );
+	  // ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	  //ofn.lpstrFilter = "Text\0*.TXT\0";
+	  ofn.lpstrFilter=filter;
+	  ofn.nFilterIndex =1;
+	  ofn.lpstrFileTitle = NULL ;
+	  ofn.nMaxFileTitle = 0 ;
+	  ofn.lpstrInitialDir=NULL ;
+	  ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+	  GetOpenFileName( &ofn );
+	  // Now simpley display the file name 
+	  // MessageBox ( NULL , ofn.lpstrFile , "File Name" , MB_OK);
+	};
 	  
-	  void Save (const char * filter)
-	  {
-        // open a file name
-	    ZeroMemory( &ofn , sizeof( ofn));
-	    ofn.lStructSize = sizeof ( ofn );
-    	ofn.hwndOwner = NULL  ;   
-	    ofn.lpstrFile = szFile ;
-   	    ofn.lpstrFile[0] = '\0';
-	    ofn.nMaxFile = sizeof( szFile );
-	    ofn.lpstrFilter=filter;
-	    ofn.nFilterIndex =1;
-	    ofn.lpstrFileTitle = NULL ;
-	    ofn.nMaxFileTitle = 0 ;
-	    ofn.lpstrInitialDir=NULL ;
-	    ofn.Flags = OFN_PATHMUSTEXIST;
-	    GetSaveFileName( &ofn );
-	  }
-	  char * Filename ()
-	  {
-	  	return &szFile[0];
-	  }
+	void Save (const char * filter)
+	{
+      // open a file name
+	  ZeroMemory( &ofn , sizeof( ofn));
+	  ofn.lStructSize = sizeof ( ofn );
+      ofn.hwndOwner = NULL  ;   
+	  ofn.lpstrFile = szFile ;
+   	  ofn.lpstrFile[0] = '\0';
+	  ofn.nMaxFile = sizeof( szFile );
+	  ofn.lpstrFilter=filter;
+	  ofn.nFilterIndex =1;
+	  ofn.lpstrFileTitle = NULL ;
+	  ofn.nMaxFileTitle = 0 ;
+	  ofn.lpstrInitialDir=NULL ;
+	  ofn.Flags = OFN_PATHMUSTEXIST;
+	  GetSaveFileName( &ofn );
+	}
+	char * Filename ()
+	{
+	  return &szFile[0];
+	}
+	
 	private:
   	  OPENFILENAME ofn ;
   	  char szFile[100] ;
@@ -442,11 +443,8 @@ class String{
       std::strcpy(this->pString, String.pString);
 
       return *this;
-    }
-
-      
+    }    
    };
-
 */
 const int MAXCHARS = 25;
 typedef char LineType[MAXCHARS];
@@ -581,12 +579,16 @@ void HighLevelMenu::AddComponent (char * typeName, int x, int y)
     components[numComponents] = new LCDDisplay ( x, y);
     components[numComponents++]->Show (g_hInst, windowHandle, "LCDDISPLAY");	
   }
+  else if (!strcmp ("Keypad", typeName))
+  {
+  	components[numComponents] = new KeypadDevice (x,y);
+  	components[numComponents++]->Show (g_hInst, windowHandle, "KEYPAD");
+  }
   else if (!strcmp ("Seven Segment", typeName))
   {
     components[numComponents] = new SevenSeg ( x, y);
     sevenSegment = (SevenSeg *)components[numComponents];
     components[numComponents++]->Show (g_hInst, windowHandle, "SEVENSEGMENT");
-
     /*
     arduino = (ArduinoComponent *)FindComponent ("Arduino");
     arduino->Connect (arduino->d[2], sevenSegment->segment[0], g_hInst);
@@ -789,6 +791,10 @@ void HighLevelMenu::HandleMenu (int command)
     
     case ADDLCDDISPLAY:
       AddComponent ("LCDDisplay",0,0);
+    break;
+    
+    case ADD4X4KEYPAD:
+      AddComponent ("4x4 Keypad",0,0);
     break;
 	  
     case ADDARDUINO:

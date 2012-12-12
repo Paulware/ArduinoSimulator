@@ -1,6 +1,8 @@
 Project Components
-Arduino,248,64
-Led,0,0
+Resistor,225,392
+Arduino,402,286
+Led,219,49
 Project Connections
-Arduino,248,64,5v,Led,0,0,LED +
-Arduino,248,64,d15,Led,0,0,LED -
+Resistor,225,392,Left,Led,219,49,LED +
+Resistor,225,392,Right,Arduino,402,286,5v
+Arduino,402,286,d15,Led,219,49,LED -
