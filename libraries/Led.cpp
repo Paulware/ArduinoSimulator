@@ -2,8 +2,8 @@
 Led::Led(int _x, int _y):ConnectedComponent(_x,_y)
 { 
   offOn = false;
-  gnd = new Pin(this);
-  power = new Pin(this);
+  gnd = new Pin();
+  power = new Pin();
   gnd->WriteValue (-1);
   power->WriteValue (-1);
   power->xOffset = 38;
@@ -23,10 +23,8 @@ Led::Led(int _x, int _y):ConnectedComponent(_x,_y)
 
 Led::~Led()
 {
-  //if (gnd)
-  //  delete (gnd);
-  //if (power)  
-  //  delete (power);
+  delete (gnd);
+  delete (power);
 }
 
 Pin * Led::FindPort ( char * port)
@@ -122,14 +120,6 @@ void Led::SaveYourself (FILE * fp)
   fprintf ( fp, "Led,%d,%d",x,y);	
 }
 
-void Led::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  
-  gnd->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  power->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-}
-
 bool Led::IsSet()
 {
   bool set = (gnd->IsSet() && power->IsSet());
@@ -142,46 +132,49 @@ void Led::Reset()
   power->Reset();
 }
 
-void Led::Paint(HWND hWnd)
+void Led::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 {
   bool ledOn; 
    
-  if (hWnd == windowHandle)
-  {
-    // Paint the background
-    ConnectedComponent::Paint (hWnd);   
+  // Paint the background
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory);   
 
-    // Paint the light on/off
-    if (gnd->GetValue() == 1)
-	  ledOn = false;
-	else if (power->GetValue() == 0)
-      ledOn = false;
-    else if (gnd->GetValue() == -1)
-	  ledOn = false;
-	else if (power->GetValue() == -1)
-	  ledOn = false;  
-    else
-	  ledOn = true;  
+  // Paint the light on/off
+  if (gnd->GetValue() == 1)
+    ledOn = false;
+  else if (power->GetValue() == 0)
+    ledOn = false;
+  else if (gnd->GetValue() == -1)
+    ledOn = false;
+  else if (power->GetValue() == -1)
+    ledOn = false;  
+  else
+    ledOn = true;  
       
-    if (ledOn)
-      SelectObject(hdcMemory, hbmRedDot);
-    else
-      SelectObject(hdcMemory, hbmBlackDot);     
-    BitBlt(hdcWindow, x+31,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-    BitBlt(hdcWindow, x+31,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
+  if (ledOn)
+    SelectObject(hdcMemory, hbmRedDot);
+  else
+    SelectObject(hdcMemory, hbmBlackDot);     
+  BitBlt(hdc, x+31,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
+  BitBlt(hdc, x+31,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
     
-    // Paint the hotspots
-    gnd->Paint(hdcMemory,hdcWindow);
-    power->Paint(hdcMemory,hdcWindow);
-  }    
+  // Paint the hotspots
+  gnd->Paint(hdc, ps, hdcMemory);
+  power->Paint(hdc, ps, hdcMemory);
 }
 
-void Led::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
+void Led::CleanUp()
 {
-  ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );     
-  ConnectedComponent::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
-  ConnectedComponent::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
-  gnd->LoadBMap (g_hInst);
-  power->LoadBMap (g_hInst);
+  ConnectedComponent::CleanUp();
+  
+  gnd->CleanUp();
+  power->CleanUp();
+}
+
+void Led::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{   
+   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+   gnd->Init (windowHandle, g_hInst);
+   power->Init (windowHandle, g_hInst);   
 }
 

@@ -8,9 +8,8 @@ class KeypadDevice:public ConnectedComponent
     KeypadDevice(int, int); 
     // Destructor
     ~KeypadDevice();
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd);  
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );	 
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);  
+    void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);
     bool clearTheText;
     void HandleMenu ( int command );
     void AddMenu ();     
@@ -27,15 +26,20 @@ class KeypadDevice:public ConnectedComponent
     bool IsSet();
     void Reset();
     Pin * FindPort ( char * port);
-    static char keypadChars[16];  
-	static char getKey;  
+    bool TroubleshootPins ( );
+
+    void static ConnectPin (byte pin);
+	static int const MAX_KEYPAD_PINS = 8;
+    static int const MAX_KEYPADS = 16;
+    static char keypadChars[MAX_KEYPADS];
+	static char getKey;
+	static int pinIndex;
+	static byte connectedTo[MAX_KEYPAD_PINS];
 	 
   private:
   	
-	static int const MAX_KEYPAD_PINS = 8;
     Pin * pin[MAX_KEYPAD_PINS];
     
-    static int const MAX_KEYPADS = 16;
     COORD pads[MAX_KEYPADS];
     
     

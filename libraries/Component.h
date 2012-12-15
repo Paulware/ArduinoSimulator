@@ -12,11 +12,9 @@ class Component
     virtual HWND DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
                              int x , int y, int width=0, int height=0);
 	virtual int NumConnections(){return 0;};	  
-    virtual void PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTRUCT & ps);
-    virtual void Paint (HWND);
+    virtual void Paint (HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);
     virtual void Select (bool select){};
     virtual Component * SelectedPort (){ return NULL;};
-    void PaintEnd ();    
     void Refresh ();
     virtual bool IsSelected (){return false;};
     virtual void * PortSelected () {return 0;};
@@ -30,25 +28,26 @@ class Component
 	virtual bool IsSet(){return false;};
     virtual void * PinActive (){return 0;};
     virtual void Activate (bool active) {};
-    virtual void MoveTo (int _x, int _y){x=_x; y=_y;};
-    void Show (HINSTANCE, HWND, char *);    
-    virtual void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap ); 
+    virtual void MoveTo (int _x, int _y);
+	virtual void Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource);
     virtual void CenterYourself ();
     virtual void SaveYourself (FILE *);
     virtual void NotSavedYet (){}; // Mark each pin as connection not saved
     virtual void SaveConnections ( FILE * fp){fprintf (fp,"Generic Connections\n");};
     virtual void * FindPort (char*) {return 0;};
+    virtual void CleanUp () { DeleteObject (hbm);};
     HBITMAP hbm;
     BITMAP bm;
     HWND   windowHandle;
+    HINSTANCE g_hInst;    
     int x;
     int y;
     int width;
     int height;
     int xOffset;
     int yOffset;
-    HDC hdcWindow;  // Determined in PaintStart based on windowHandle
     HDC hdcMemory;
+    HDC hdc;
     PAINTSTRUCT ps;
     bool isActive;
     void SaveType ( char *);
@@ -56,8 +55,10 @@ class Component
     static int const MAXCOMPONENTTYPELENGTH=20;
     char componentType[MAXCOMPONENTTYPELENGTH];
     
+    static int const MAXRESOURCECHARS=20;
+    char bmpResource [MAXRESOURCECHARS];
+    
   protected:    
-    HINSTANCE g_hInst;    
 };
 #endif
 

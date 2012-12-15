@@ -9,8 +9,7 @@ class Resistor:public ConnectedComponent
     // Destructor
     ~Resistor();
     Pin * PortSelected ();    
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd);
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);
     void HandleMouseDown (HWND hWnd, int _x, int _y);                      
     void HandleMouseMove (HWND hWnd, int _x, int _y);                      
     void HandleMouseUp (HWND hWnd); 
@@ -18,12 +17,13 @@ class Resistor:public ConnectedComponent
     void AddMenu ();       
     void MoveTo (int, int);  
     Pin * PinActive ();      
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap);
     bool IsSet();
     void SetPins();
     void Reset();
     void SaveYourself (FILE * fp);        
     void Select (bool){};
+	void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);
+    
     
     Pin * FindPort ( char * port);
     Pin * input;

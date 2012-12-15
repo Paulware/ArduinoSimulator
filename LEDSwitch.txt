@@ -2,9 +2,9 @@ Project Components
 Arduino,358,216
 MomentaryDepress,330,38
 Led,83,105
-Resistor,150,351
+Resistor220,150,351
 Project Connections
-Arduino,358,216,5v,Resistor,150,351,Right
+Arduino,358,216,5v,Resistor220,150,351,Right
 Arduino,358,216,gnd,MomentaryDepress,330,38,Switch Right
 MomentaryDepress,330,38,Switch Left,Led,83,105,LED -
-Led,83,105,LED +,Resistor,150,351,Left
+Led,83,105,LED +,Resistor220,150,351,Left

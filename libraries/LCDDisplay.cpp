@@ -15,7 +15,7 @@ LCDDisplay::LCDDisplay(int _x, int _y): ConnectedComponent(_x,_y)
   	pinName [4] = (i % 10) + '0';
   	pinName [3] = (i / 10) + '0';
   	
-    pin[i] = new Pin(this);
+    pin[i] = new Pin();
 	pin[i]->WriteValue (0);
 	if (i<3)  
 	  pin[i]->xOffset = 168 + i*11;
@@ -29,6 +29,8 @@ LCDDisplay::LCDDisplay(int _x, int _y): ConnectedComponent(_x,_y)
 	pin[i]->SetName (pinName);	
   }	 
   SaveType ("LCDDisplay");   
+  col = 0;
+  row = 0;
 }
 
 void LCDDisplay::Select ( bool select)
@@ -44,15 +46,11 @@ void LCDDisplay::print ( int value)
   print (val);
 }
 
-void LCDDisplay::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
-{
-  Component::LoadBMap (bmpResource, hBitMap, bitMap );     	
-  Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
-  Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
-  
-  //Component::LoadBMap ("LCDPIN", hbmPinDot, bmPinDot);
-  for (int i=0; i<MAX_LCD_PINS; i++)	
-  	pin[i]->LoadBMap (g_hInst);
+void LCDDisplay::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{   
+   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+   for (int i=0; i<MAX_LCD_PINS; i++)	
+   	 pin[i]->Init (windowHandle, g_hInst);      
 }
 
 void LCDDisplay::SaveYourself (FILE * fp)
@@ -62,18 +60,19 @@ void LCDDisplay::SaveYourself (FILE * fp)
 
 void LCDDisplay::clear()
 {
-  TextOut (hdcWindow, x+55, y+ 73,  "                    ", 20 );
-  TextOut (hdcWindow, x+55, y+103,  "                    ", 20 );
-  TextOut (hdcWindow, x+55, y+133,  "                    ", 20 );
-  TextOut (hdcWindow, x+55, y+163,  "                    ", 20 );
+  
+  for (int i=0; i<MAX_SCREEN_CHARS; i++)
+    screen[i]=' ';
+  row = 0;
+  col = 0;
+  
 }
 
 void LCDDisplay::showScreen(HDC hdcWindow)
 { 
   char line[20];
   int index;
-  
-  clear();  
+   
   for (int i=0; i<4; i++)
   {
     index = i*20;
@@ -118,11 +117,9 @@ void LCDDisplay::HandleMenu ( int command )
 void LCDDisplay::print (char * line)
 {
   int len = strlen (line);
-  int index;
-  static int col = 0;
-  static int row = 0;
+  int index;  
   
-  
+  /*
   if (clearTheText)
   {
     for (int i=0; i<80; i++)
@@ -132,7 +129,8 @@ void LCDDisplay::print (char * line)
       row = 0;
     }
     clearTheText = false;
-  }  
+  } 
+  */ 
   
   index  = col + (row*20);
   
@@ -154,31 +152,29 @@ void LCDDisplay::print (char * line)
 }
 
 LCDDisplay::~LCDDisplay()
-{	
+{
+  for (int i=0; i<MAX_LCD_PINS; i++)
+  	delete (pin[i]);
+
 }
 
-void LCDDisplay::Paint(HWND hWnd)
+void LCDDisplay::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 {
   bool ledOn; 
   HFONT hFont;
    
-  if (hWnd == windowHandle)
-  {
-    Component::Paint (hWnd); // Show LCD image  
-
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory); // Show background image  
     
-    hFont = CreateFont (28,0,0,0,FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-    CLIP_DEFAULT_PRECIS, 0, VARIABLE_PITCH, TEXT ( "Courier New"));
-    (void) SetTextColor ( hdcWindow, RGB (255,255,255));
-    (void) SetBkMode( hdcWindow, TRANSPARENT);
-    SelectObject (hdcWindow, hFont);
-    showScreen(hdcWindow);
-    
-  
-    // Paint the hotspots
-    for (int i=0; i<MAX_LCD_PINS; i++)
-      pin[i]->Paint(hdcMemory,hdcWindow);
-  }    
+  hFont = CreateFont (28,0,0,0,FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+  CLIP_DEFAULT_PRECIS, 0, VARIABLE_PITCH, TEXT ( "Courier New"));
+  (void) SetTextColor ( hdc, RGB (255,255,255));
+  (void) SetBkMode( hdc, TRANSPARENT);
+  SelectObject (hdc, hFont);
+  showScreen(hdc);
+      
+  // Paint the hotspots
+  for (int i=0; i<MAX_LCD_PINS; i++)
+    pin[i]->Paint(hdc, ps, hdcMemory);
 }
 
 void LCDDisplay::HandleMouseDown (HWND hWnd, int _x, int _y)
@@ -230,14 +226,6 @@ Pin * LCDDisplay::PortSelected(){
   }	
 	  
   return p;  
-}
-
-void LCDDisplay::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  
-  for (int i=0; i<MAX_LCD_PINS; i++)
-    pin[i]->PaintStart ( _hdcWindow, _hdcMemory, _ps);
 }
 
 Pin * LCDDisplay::FindPort ( char * port)

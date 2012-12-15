@@ -1,12 +1,12 @@
 #include "Pin.h"
-Pin::Pin(Component * _parent)
+#include "HighLevelMenu.h"
+Pin::Pin():Component()
 { 
   value.value = -1;
   value.resistance = 0;
   constValue.value = -1;	 
   constValue.resistance = 0;
   
-  parent = _parent;
   x = 0;
   y = 0; 
   xOffset = 0;
@@ -18,8 +18,8 @@ Pin::Pin(Component * _parent)
 
 Pin::~Pin()
 {
-  //if (connection)
-  //  delete (connection);
+  // Delete all connections that use this pin
+  HighLevelMenu::Instance()->DeleteConnection (this);
   delete (name);
 }
 
@@ -29,35 +29,32 @@ void Pin::SetName(char * _name)
   strcpy ( name,_name);
 }
 
-void Pin::PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTRUCT & ps)
+void Pin::Init (HWND _windowHandle, HINSTANCE _g_hInst)
 {
-}
+  Component::Init (_windowHandle, _g_hInst, "");
+} 
 
-void Pin::Paint (HDC hdcMemory, HDC hdcWindow)
-{
-  SelectObject(hdcMemory, hbm); 
-  BitBlt(hdcWindow, x, y, bm.bmWidth, bm.bmHeight, hdcMemory, 0, 0, SRCAND);
-  BitBlt(hdcWindow, x, y, bm.bmWidth, bm.bmHeight, hdcMemory, 0, 0, SRCPAINT);
+void Pin::Paint (HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
+{ 
+  if (isActive)   
+    Component::Init (windowHandle, g_hInst, "REDDOT");
+  else
+    Component::Init (windowHandle, g_hInst, "BLACKDOT");
+    
+  Component::Paint (_hdc, _ps, _hdcMemory);   
 }
 
 void Pin::MoveTo (int _x, int _y)
 {
-  Pin * conn;
-  int index = 0;
-
   x = _x;
   y = _y;
+  Refresh();
 }
 
 // Change color of pin to indicate active
 void Pin::Select(bool active)
 {
-  if (active)   
-    hbm = LoadBitmap (myInst, "REDDOT");   
-  else
-    hbm = LoadBitmap (myInst, "BLACKDOT"); 
   isSelected = active;    
-  GetObject(hbm, sizeof(bm), &bm);    
 }
 
 // [_x,_y] is absolute not relative to parent
@@ -67,22 +64,6 @@ void Pin::HandleMouseMove (HWND hWnd, int _x, int _y)
     isActive = true;
   else if (isActive)
     isActive = false;    
-}
-
-void Pin::LoadBMap ( HINSTANCE h_Inst)
-{
-  myInst = h_Inst;
-  hbm = LoadBitmap (h_Inst, "BLACKDOT");   
-  GetObject(hbm, sizeof(bm), &bm);
-  // Center the object on the x/y pixel
-}
-
-void Pin::LoadBMap ( HINSTANCE h_Inst, char * bmpResource)
-{
-  myInst = h_Inst;
-  hbm = LoadBitmap (h_Inst, bmpResource);   
-  GetObject(hbm, sizeof(bm), &bm);
-  // Center the object on the x/y pixel
 }
 
 void Pin::Reset()

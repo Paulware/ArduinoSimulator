@@ -1,0 +1,13 @@
+Project Components
+Arduino,342,285
+LCDDisplay,674,-8
+Keypad,438,31
+Project Connections
+Arduino,342,285,d02,Keypad,438,31,pin0
+Arduino,342,285,d03,Keypad,438,31,pin1
+Arduino,342,285,d04,Keypad,438,31,pin2
+Arduino,342,285,d05,Keypad,438,31,pin3
+Arduino,342,285,d06,Keypad,438,31,pin4
+Arduino,342,285,d07,Keypad,438,31,pin5
+Arduino,342,285,d08,Keypad,438,31,pin6
+Arduino,342,285,d09,Keypad,438,31,pin7

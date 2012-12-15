@@ -22,6 +22,15 @@ HighLevelMenu::HighLevelMenu(ViewConnections * _viewConnections):Component()
   viewConnections = _viewConnections;
   strcpy(projectFilename,"");
   highLevelMenu = this;
+  
+  ComponentNames.push_back ("Arduino");
+  ComponentNames.push_back ("Led");
+  ComponentNames.push_back ("MomentaryDepress");
+  ComponentNames.push_back ("Resistor10K");
+  ComponentNames.push_back ("LCDDisplay");
+  ComponentNames.push_back ("Keypad");
+  ComponentNames.push_back ("Seven Segment");
+  ComponentNames.push_back ("Resistor220");
 }
 
 HighLevelMenu::~HighLevelMenu()
@@ -51,6 +60,38 @@ void HighLevelMenu::DeleteConnection (Pin * pin)
 HighLevelMenu * HighLevelMenu::Instance()
 {
   return highLevelMenu;
+}
+
+Pin * HighLevelMenu::FindOtherPin ( Pin * pin)
+{
+  Pin * otherPin;
+  int index = 0;
+  int found = -1;
+  ConnectedComponent * component = 0;
+  
+  while (component=components[index])
+  {
+    if (otherPin = component->FindOtherPin (pin))
+    {      
+      found = index;
+      break;
+    }
+    index++;
+  }    
+  return otherPin;	
+}
+
+void HighLevelMenu::TroubleshootPins ()
+{
+  int index = 0;
+  ConnectedComponent * component;
+  bool ok = true;
+  
+  while ((component=components[index++]) && ok)
+    ok = component->TroubleshootPins();
+
+  if (ok)      
+    MessageBox (0,"Could not detect wiring issues", "Done Troubleshooting Pins", 0);    
 }
 
 ConnectedComponent * HighLevelMenu::FindComponent ( char * typeName)
@@ -126,35 +167,6 @@ void HighLevelMenu::lcdPrint ( int value)
     lcdDisplay->print(value);
 }
 
-void HighLevelMenu::HandleMouseMove (HWND hWnd, int x, int y)
-{  
-  ConnectedComponent * component;
-  Connection * connection;
-  int index = 0;
-  
-  while (component = components[index++])
-  {
-  	component->isActive =  (
-	    (x >= component->x) && (x <= component->x + component->width) &&
-        (y >= component->y) && (y <= component->y + component->height));
-    if (component->isActive)
-    { 
-      // HandleMouseMove shows offset within the window  
-      component->HandleMouseMove (hWnd, x,y);
-      break;
-    }     
-  } 
-     
-  if (selectedItem > -1)
-  {
-    components[selectedItem]->MoveTo (x,y);
-    components[selectedItem]->Refresh();
-    index = 0;
-    while (component=components[index++])
-      component->Move();
-  }  
-}
-
 void HighLevelMenu::Reset ()
 {
   ConnectedComponent * component;
@@ -163,49 +175,6 @@ void HighLevelMenu::Reset ()
   // Set all values to -1
   while (component = components[index++])
   	component->Reset();  
-}
-
-// Set the component xOffset and yOffset
-void HighLevelMenu::HandleMouseDown (HWND hWnd, int x, int y)
-{
-  bool isActive = false;
-  ConnectedComponent * component;
-  int index = 0;
-
-  Reset();
-
-  while (component = components[index])
-  {
-    if ((x >= component->x) && (x <= component->x + component->width) &&
-        (y >= component->y) && (y <= component->y + component->height))
-    {   
-      component->xOffset = x - component->x;
-      component->yOffset = y - component->y;
-      // Make the port like a radio button so that only 1 port is selectable
-      // at a time.
-      if (!component->PortSelected() || !component->PinActive())
-      {
-        component->HandleMouseDown(hWnd, x, y);               
-        selectedItem = index;
-      }
-      else // Toggle the pin activity
-      {
-        if ((component->PortSelected() != component->PinActive()))
-        {
-          component->Select(false);
-          component->HandleMouseDown(hWnd, x, y);               
-          selectedItem = index;
-        }
-        else // Deselect the port
-          component->Select(false);
-      }      
-      break;
-    }  
-    index++;
-  } 
-  
-  ComputeSystem();
-  Refresh();   
 }
 
 void HighLevelMenu::ComputeSystem()
@@ -241,67 +210,19 @@ void HighLevelMenu::ComputeSystem()
   
 }
 
-void HighLevelMenu::HandleMouseUp (HWND hWnd)
-{
-  int numSelected = 0;
-  Connection * c;
-  struct IdPort
-  {
-  	COORD port;
-  	int componentIndex;
-  };
-  Pin * pin;
-  Pin * pin1 = 0;
-  Pin * pin2 = 0;
-  
-  ConnectedComponent * component1;
-  ConnectedComponent * component2;
-  ConnectedComponent * component;
-  int index = 0;
-  
-  // Set all values to -1
-  Reset();
-  
-  index = 0;    
-  while (component = components[index])
-  {
-  	if (component->isActive)
-      component->HandleMouseUp (hWnd);
-      
-    if (pin = (Pin *)component->PortSelected())
-    {
-      if (!pin1) // This is the first port selected
-      {
-        pin1 = pin;
-        component1 = component;
-      }
-      else
-      {
-        pin2 = pin;
-        component2 = component;
-      }
-      numSelected++;
-      if (numSelected ==2)
-      {
-        component1->Connect (pin1, pin2, g_hInst);
-      }
-    }
-    index++;
-  }
-  
-  ComputeSystem();
-  selectedItem = -1; // Stop tracking the mouse      
-  Refresh();   
-}
 
 void HighLevelMenu::AddMenu ()
 {     
   HMENU  MainMenu, hAddMenu, hSaveMenu, hResistorMenu, hProjectMenu, hViewMenu,
-         hFileMenu;
+         hFileMenu, hTroubleShootMenu;
   
   MainMenu = CreateMenu();
   SetMenu (windowHandle, MainMenu); 
   
+  hTroubleShootMenu = CreatePopupMenu();
+  InsertMenu (MainMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hTroubleShootMenu, "Trouble Shoot");
+  AppendMenu (hTroubleShootMenu,   MF_STRING, TROUBLESHOOTCONNECTIONS,             "Connections" );
+    
   hAddMenu = CreatePopupMenu();
   InsertMenu (MainMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hAddMenu, "Add");
   AppendMenu (hAddMenu, MF_STRING, ADDLED,             "Led" );
@@ -310,10 +231,11 @@ void HighLevelMenu::AddMenu ()
   AppendMenu (hAddMenu, MF_STRING, ADDLCDDISPLAY,      "LCD Display");
   AppendMenu (hAddMenu, MF_STRING, ADD4X4KEYPAD,       "4x4 Keypad");
   AppendMenu (hAddMenu, MF_STRING, ADDARDUINO,         "Arduino");
-  
+    
   hResistorMenu = CreatePopupMenu();
   InsertMenu (hAddMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hResistorMenu, "Resistor");
-  AppendMenu (hResistorMenu, MF_STRING, ADDRESISTOR,        "10k ohm");
+  AppendMenu (hResistorMenu, MF_STRING, ADDRESISTOR220,        "220 ohm");
+  AppendMenu (hResistorMenu, MF_STRING, ADDRESISTOR10K,        "10k ohm");
     
   hViewMenu = CreatePopupMenu();
   AppendMenu (hViewMenu, MF_STRING, VIEWARDUINOCONNECTIONS, "Arduino Connections");
@@ -334,19 +256,6 @@ void HighLevelMenu::AddMenu ()
   (void) SetMenu(windowHandle,MainMenu);
 }
 
-// Set the hdcWindow, hdcMemory and ps for all the components 
-void HighLevelMenu::PaintStart ()
-{
-  hdcWindow = 0;
-  hdcMemory = 0;
-  ConnectedComponent * component;
-  int index = 0;
-  
-  Component::PaintStart (hdcWindow, hdcMemory, ps);
-  
-  while (component = components[index++])	
-  	component->PaintStart (hdcWindow, hdcMemory, ps);
-}
 
 void GetToken ( FILE * fp, char * line)
 {
@@ -419,33 +328,81 @@ class OpenFileDialog {
   	  char szFile[100] ;
 };
 
-/*
+
 class String{
    private:
-      enum { SZ = 80 };
-      char str[SZ];
+      char * pString;
    public:
-      String(){ strcpy(str, ""); }
-      String( char s[] ){ strcpy(str, s); }
-      void display() const{ MessageBox (0,str,"show",0); }
-      //void getstr(){ cin.get(str, SZ); }
-      bool operator == (String ss) const{
-         return ( strcmp(str, ss.str)==0 ) ? true : false;
+      String(){ pString = 0;}
+      
+      char * Me () { 
+        return pString;
       }
-      String& operator=(const String& String) {
-      if(this == &String)
-        return *this;
-
-      delete[] pString;
-      pString = new char[ strlen(String.pString) + 1];
-
-      // Copy right operand string to left operand
-      std::strcpy(this->pString, String.pString);
+      
+      String( char * s )
+	  {
+	    int len = strlen (s);
+		pString = (char *)calloc (len +1, sizeof (char));
+		strcpy (pString, s); 
+	  }
+      void display() // const
+	  { 
+	    MessageBox (0,pString,"show",0); 
+	  }
+	  
+	  int Len () {
+	  	return strlen(pString);
+	  }
+      //void getstr(){ cin.get(str, SZ); }
+      bool operator == (String str) const{
+      	bool match = false;
+      	if (!strcmp (pString, str.pString))
+      	  match = true;
+      	return match;
+      }
+      
+      String& operator+(char ch)
+      {
+      	char * append;
+    	append = (char *)calloc (Len() + 1 + 1, 1);
+      	strcpy (append,pString);
+      	append[Len()] = ch; // Append the character
+      	delete (pString);
+      	pString = append;      	
+      }
+      
+      String& operator+(String &Str)
+      {
+      	char * append;
+      	if (Str.Len())
+      	{
+      	  append = (char *)calloc (Len() + Str.Len() + 1, 1);
+      	  strcpy (append,pString);
+      	  strcpy (&append[Len()],Str.Me());
+      	  delete (pString);
+      	  pString = append;
+      	}      	
+      }
+      
+      String& operator=(const String& Str) 
+	  {
+	  	int len;
+        if(this != &Str)
+        {
+		  len = strlen (Str.pString);
+          if (pString)
+            delete (pString);
+          pString = (char *)calloc (len+1, sizeof (char));
+          //std::
+		  strcpy (pString, Str.pString);          
+        }
 
       return *this;
-    }    
+      }    
    };
-*/
+
+//String * temp = new String ( "Hello");
+//int len = temp->Len();
 const int MAXCHARS = 25;
 typedef char LineType[MAXCHARS];
 struct LineInfo
@@ -550,59 +507,93 @@ void HighLevelMenu::NewProject()
   Refresh();	
 }
 
-void HighLevelMenu::AddComponent (char * typeName, int x, int y)
+int HighLevelMenu::FindComponentName (std::string str)
+{
+  int found = -1;
+  
+  if (!str.size())
+    MessageBox (0,"Component name is null string", "FindComponentName",0);
+  else  
+    for (int i=0; i<ComponentNames.size(); i++)
+  	  if (str == ComponentNames[i])
+  	  {
+  	    found = i;
+  	    break;
+  	  }
+  
+  return found;
+}
+
+void HighLevelMenu::AddComponent (int index, char * typeName, int x, int y)
 {
   SevenSeg * sevenSegment;	
   ArduinoComponent * arduino;
-  if (!strcmp ( "Arduino",typeName))
+  ConnectedComponent * component; 
+  
+  int componentIndex = index;
+  if (componentIndex == -1)
+    componentIndex = FindComponentName (typeName);
+    
+  switch (componentIndex)    
   {
- 	components[numComponents] = new ArduinoComponent ( x, y);
-    components[numComponents++]->Show (g_hInst, windowHandle, "ARDUINOBMP" );
+    case 0:
+   	  component = new ArduinoComponent ( x, y);
+	  component->Init (windowHandle, g_hInst, "ARDUINOBMP");
+	  components[numComponents++] = component;
+      break;
+    case 1:
+      component = new Led ( x, y);
+	  component->Init (windowHandle, g_hInst, "LEDBMP");
+	  components[numComponents++] = component;
+      break;
+    case 2:
+      component = new MomentaryDepress ( x, y);
+	  component->Init (windowHandle, g_hInst, "MOMENTARYDEPRESS");
+	  components[numComponents++] = component;
+	  break;
+	case 3:
+      component = new Resistor ( x, y, 10000);
+	  component->Init (windowHandle, g_hInst, "TENKOHMS");
+	  components[numComponents++] = component;
+      break;
+      
+    case 4:
+      component = new LCDDisplay ( x, y);
+	  component->Init (windowHandle, g_hInst, "LCDDISPLAY");
+	  components[numComponents++] = component;
+	  break;
+	case 5:	
+  	  component = new KeypadDevice (x,y);
+	  component->Init (windowHandle, g_hInst, "KEYPAD");
+	  components[numComponents++] = component;
+  	  break;
+  	case 6:
+      component = new SevenSeg ( x, y);
+	  component->Init (windowHandle, g_hInst, "SEVENSEGMENT");
+	  components[numComponents++] = component;
+      break;  
+	case 7:  
+      component = new Resistor ( x, y, 220);
+	  component->Init (windowHandle, g_hInst, "TWOTWENTYOHMS");
+	  components[numComponents++] = component;
+      break;
+      /*
+        arduino = (ArduinoComponent *)FindComponent ("Arduino");
+        arduino->Connect (arduino->d[2], sevenSegment->segment[0], g_hInst);
+        arduino->Connect (arduino->d[3], sevenSegment->segment[1], g_hInst);
+        arduino->Connect (arduino->d[4], sevenSegment->segment[2], g_hInst);
+        arduino->Connect (arduino->d[5], sevenSegment->segment[3], g_hInst);
+        arduino->Connect (arduino->d[6], sevenSegment->segment[4], g_hInst);
+        arduino->Connect (arduino->d[13], sevenSegment->segment[5], g_hInst);
+        arduino->Connect (arduino->d[14], sevenSegment->segment[6], g_hInst);    
+   	    arduino->Connect (arduino->gnd, sevenSegment->gnd, g_hInst);    
+	  */
+      
+    default:
+      MessageBox (0,typeName,"Unknown type requested",0);
+	  break;
   }
-  else if (!strcmp ("Led", typeName))
-  {
-    components[numComponents] = new Led ( x, y);
-    components[numComponents++]->Show (g_hInst, windowHandle, "LEDBMP" );
-  }
-  else if (!strcmp ("MomentaryDepress", typeName))
-  {
-    components[numComponents] = new MomentaryDepress ( x, y);
-    components[numComponents++]->Show (g_hInst, windowHandle, "MOMENTARYDEPRESS");	
-  }
-  else if (!strcmp ("Resistor",typeName))
-  {
-    components[numComponents] = new Resistor ( x, y, 10000);
-    components[numComponents++]->Show (g_hInst, windowHandle, "TENKOHMS");	
-  }  
-  else if (!strcmp ("LCDDisplay", typeName))
-  {
-    components[numComponents] = new LCDDisplay ( x, y);
-    components[numComponents++]->Show (g_hInst, windowHandle, "LCDDISPLAY");	
-  }
-  else if (!strcmp ("Keypad", typeName))
-  {
-  	components[numComponents] = new KeypadDevice (x,y);
-  	components[numComponents++]->Show (g_hInst, windowHandle, "KEYPAD");
-  }
-  else if (!strcmp ("Seven Segment", typeName))
-  {
-    components[numComponents] = new SevenSeg ( x, y);
-    sevenSegment = (SevenSeg *)components[numComponents];
-    components[numComponents++]->Show (g_hInst, windowHandle, "SEVENSEGMENT");
-    /*
-    arduino = (ArduinoComponent *)FindComponent ("Arduino");
-    arduino->Connect (arduino->d[2], sevenSegment->segment[0], g_hInst);
-    arduino->Connect (arduino->d[3], sevenSegment->segment[1], g_hInst);
-    arduino->Connect (arduino->d[4], sevenSegment->segment[2], g_hInst);
-    arduino->Connect (arduino->d[5], sevenSegment->segment[3], g_hInst);
-    arduino->Connect (arduino->d[6], sevenSegment->segment[4], g_hInst);
-    arduino->Connect (arduino->d[13], sevenSegment->segment[5], g_hInst);
-    arduino->Connect (arduino->d[14], sevenSegment->segment[6], g_hInst); 
-	arduino->Connect (arduino->gnd, sevenSegment->gnd, g_hInst);    
-	*/
-  }
-  else
-    MessageBox (0,"Could not find a component",typeName,0);
+  Refresh();
 }
 
 void HighLevelMenu::HandleKeyUp ( int scanCode) 
@@ -665,7 +656,7 @@ void HighLevelMenu::ReadProject(char * filename)
  	 {
  	   if(strlen ( line.component1))
  	     if (line.readingComponent)
- 	  	   AddComponent (line.component1, line.x1, line.y1);	 	  	    
+ 	  	   AddComponent (-1, line.component1, line.x1, line.y1);	 	  	    
  	  	 else // reading a connection
  	  	 {
  	  	   component1 = FindComponent (line.x1,line.y1);
@@ -684,7 +675,7 @@ void HighLevelMenu::ReadProject(char * filename)
  	  	     MessageBox (0,"Can't find port2","Oops",0);
  	  	   else
  	  	   {
-             component1->Connect (port1, port2, g_hInst);
+             component1->Connect (port1, port2);
   	       }
  	  	 }
  	 
@@ -750,17 +741,26 @@ void HighLevelMenu::Paint(HWND hWnd)
   int index = 0;
   ConnectedComponent * component;
   Connection * connection;
+   
+  if (hWnd == windowHandle)
+  {
+  	hdc = BeginPaint (hWnd, &ps);
+  	hdcMemory = CreateCompatibleDC (hdc);
   	
-  //if (hWnd == windowHandle)
-  //{
-    PaintStart ();
     while (component = components[index])
     {
-      component->Paint (hWnd);
+      component->Paint (hdc, ps, hdcMemory);
       index++;
     } 
-    PaintEnd ();
-  //}   
+    
+
+    index = 0;
+    while (component = components[index++])
+      component->CleanUp();
+
+    DeleteDC (hdcMemory);    
+    EndPaint (hWnd, &ps);
+  }
 }
 
 HWND HighLevelMenu::DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
@@ -773,36 +773,39 @@ HWND HighLevelMenu::DrawWindow (char * title, HINSTANCE hInst, char * bmpResourc
 
 void HighLevelMenu::HandleMenu (int command)
 {
-  OpenFileDialog ofd;
-		
+  OpenFileDialog ofd;		
   switch (command)
   {
     case ADDLED: 
-      AddComponent ("Led",0,0);
+      AddComponent (1,"",0,0);
     break;
     
     case ADDMOMENTARYSWITCH:
-      AddComponent ("MomentaryDepress",0,0);
+      AddComponent (2,"",0,0);
     break;   
 	 
     case ADDSEVENSEGMENT:
-      AddComponent ("Seven Segment",0,0);
+      AddComponent (6,"",0,0);
     break;  
     
     case ADDLCDDISPLAY:
-      AddComponent ("LCDDisplay",0,0);
+      AddComponent (4,"",0,0);
     break;
     
     case ADD4X4KEYPAD:
-      AddComponent ("4x4 Keypad",0,0);
+      AddComponent (5,"",0,0);
     break;
 	  
     case ADDARDUINO:
-      AddComponent ("Arduino",0,0);
+      AddComponent (0,"",0,0);
     break;
     
-    case ADDRESISTOR:
-      AddComponent ("Resistor",0,0);
+    case ADDRESISTOR10K:
+      AddComponent (3,"",0,0);
+    break;
+    
+    case ADDRESISTOR220:
+      AddComponent (7,"",0,0);
     break;
     
 	case SAVEAS:
@@ -827,7 +830,136 @@ void HighLevelMenu::HandleMenu (int command)
 	case NEWPROJECT:
 	  NewProject();
 	break;
+	
+	case TROUBLESHOOTCONNECTIONS:
+	  TroubleshootPins();
+	break;
 	  
   }   
+}
+void HighLevelMenu::HandleMouseMove (HWND hWnd, int x, int y)
+{  
+  ConnectedComponent * component;
+  Connection * connection;
+  int index = 0;
+  
+  while (component = components[index++])
+  {
+  	component->isActive =  (
+	    (x >= component->x) && (x <= component->x + component->width) &&
+        (y >= component->y) && (y <= component->y + component->height));
+    if (component->isActive)
+    { 
+      // HandleMouseMove shows offset within the window  
+      component->HandleMouseMove (hWnd, x,y);
+      break;
+    }     
+  } 
+      
+  if (selectedItem > -1)
+  {
+    components[selectedItem]->MoveTo (x,y);
+    components[selectedItem]->Refresh();
+    index = 0;
+    while (component=components[index++])
+      component->Move();
+  }   
+}
+
+
+// Set the component xOffset and yOffset
+void HighLevelMenu::HandleMouseDown (HWND hWnd, int x, int y)
+{
+  bool isActive = false;
+  ConnectedComponent * component;
+  int index = 0;
+
+  Reset();
+
+  while (component = components[index])
+  {
+    if ((x >= component->x) && (x <= component->x + component->width) &&
+        (y >= component->y) && (y <= component->y + component->height))
+    {   
+      component->xOffset = x - component->x;
+      component->yOffset = y - component->y;
+      // Make the port like a radio button so that only 1 port is selectable
+      // at a time.
+      if (!component->PortSelected() || !component->PinActive())
+      {
+        component->HandleMouseDown(hWnd, x, y);               
+        selectedItem = index;
+      }
+      else // Toggle the pin activity
+      {
+        if ((component->PortSelected() != component->PinActive()))
+        {
+          component->Select(false);
+          component->HandleMouseDown(hWnd, x, y);               
+          selectedItem = index;
+        }
+        else // Deselect the port
+          component->Select(false);
+      }      
+      break;
+    }  
+    index++;
+  } 
+  
+  ComputeSystem();
+  // Refresh();   
+}
+
+void HighLevelMenu::HandleMouseUp (HWND hWnd)
+{
+  int numSelected = 0;
+  Connection * c;
+  struct IdPort
+  {
+  	COORD port;
+  	int componentIndex;
+  };
+  Pin * pin;
+  Pin * pin1 = 0;
+  Pin * pin2 = 0;
+  
+  ConnectedComponent * component1 = 0;
+  ConnectedComponent * component2 = 0;
+  ConnectedComponent * component = 0;
+  int index = 0;
+  
+  // Set all values to -1
+  Reset();
+  
+  index = 0;    
+  while (component = components[index])
+  {
+  	if (component->isActive)
+      component->HandleMouseUp (hWnd);
+      
+    if (pin = (Pin *)component->PortSelected())
+    {
+      if (!pin1) // This is the first port selected
+      {
+        pin1 = pin;
+        component1 = component;
+      }
+      else
+      {
+        pin2 = pin;
+        component2 = component;
+      }
+      numSelected++;
+      if (numSelected ==2)
+      {
+        component1->Connect (pin1, pin2);
+      }
+    }
+    index++;
+  }
+  
+  ComputeSystem();
+  selectedItem = -1; // Stop tracking the mouse      
+  Refresh();   
 }
 

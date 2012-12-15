@@ -6,11 +6,9 @@
 class Connection:public Component
 {
   public:          
-    Connection(Component *, Pin *, Pin *); // Constructor
+    Connection(Pin *, Pin *); // Constructor
     ~Connection();       // Destructor
-    void LoadBMap (HINSTANCE); 
-    void PaintStart (HDC & _hdcWindow ,HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd); // line->Paint(hWnd);};                      
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);                     
     void HandleMouseMove (HWND hWnd, int x1, int y1, int x2, int y2);
     void Move ();
 	void HandleMouseDown (HWND hWnd, int _x, int _y){};
@@ -18,7 +16,9 @@ class Connection:public Component
     void SaveConnection ( FILE *);
     Pin * pin1;
     Pin * pin2;
-    Component * component1;
+    Pin * OtherPin (Pin *);
+    void Init (HWND, HINSTANCE);
+    void CleanUp();
 	    
   private:
     Line * line;

@@ -1,9 +1,44 @@
 #include "KeypadDevice.h"
+#include "HighLevelMenu.h"
 
 char KeypadDevice::keypadChars[16];
 char KeypadDevice::getKey;
+int  KeypadDevice::pinIndex;
+byte KeypadDevice::connectedTo[MAX_KEYPAD_PINS];
+
+void KeypadDevice::ConnectPin (byte pin)
+{
+  if (pinIndex < MAX_KEYPAD_PINS)
+    connectedTo[pinIndex++] = pin;
+}
+
+bool KeypadDevice::TroubleshootPins ( )
+{
+  bool ok = true;
+  char pinName[] = "d00";
+  Pin * otherPin;
+  for (int i=0; i<MAX_KEYPAD_PINS; i++)
+  {
+    otherPin = HighLevelMenu::Instance()->FindOtherPin ( pin[i]);	
+    if (otherPin)
+    {
+      pinName[1] = connectedTo[i] / 10 + '0';
+      pinName[2] = connectedTo[i] % 10 + '0';
+      if (strcmp (otherPin->name, pinName ))
+      {
+        MessageBox ( 0,pin[i]->name, "Not connected correctly", 0);
+        ok = false;
+      }
+    }
+    else
+      MessageBox ( 0, "Could not find pin connected to", pin[i]->name,0);
+  }
+  return ok;
+}
+
 KeypadDevice::KeypadDevice(int _x, int _y): ConnectedComponent(_x,_y)
-{ 
+{
+  pinIndex = 0; 
   SHORT xs[] = {27,75,122,168};
   SHORT ys[] = {15,61,108,155};
   SHORT tempX, tempY;
@@ -23,7 +58,7 @@ KeypadDevice::KeypadDevice(int _x, int _y): ConnectedComponent(_x,_y)
   
   for (int i=0; i<MAX_KEYPAD_PINS; i++)
   {
-    pin[i] = new Pin(this);
+    pin[i] = new Pin();
 	pin[i]->WriteValue (0);
     pin[i]->xOffset = 64 + i*13;
 	pin[i]->yOffset = 196;
@@ -35,15 +70,11 @@ KeypadDevice::KeypadDevice(int _x, int _y): ConnectedComponent(_x,_y)
   SaveType ("Keypad");     
 }
 
-void KeypadDevice::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
-{
-  Component::LoadBMap (bmpResource, hBitMap, bitMap );     	
-  Component::LoadBMap ("REDLED", hbmRedDot, bmRedDot);
-  Component::LoadBMap ("BLACKLED", hbmBlackDot, bmBlackDot);
-  
-  //Component::LoadBMap ("LCDPIN", hbmPinDot, bmPinDot);
-  for (int i=0; i<MAX_KEYPAD_PINS; i++)	
-  	pin[i]->LoadBMap (g_hInst);
+void KeypadDevice::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{   
+   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+   for (int i=0; i<MAX_KEYPAD_PINS; i++)	
+   	 pin[i]->Init (windowHandle, g_hInst);
 }
 
 void KeypadDevice::SaveYourself (FILE * fp)
@@ -100,25 +131,13 @@ KeypadDevice::~KeypadDevice()
     delete (pin[i]);	
 }
 
-void KeypadDevice::Paint(HWND hWnd)
+void KeypadDevice::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 { 
-  HFONT hFont;
-   
-  if (hWnd == windowHandle)
-  {
-    Component::Paint (hWnd); // Show LCD image  
-
-    
-    hFont = CreateFont (28,0,0,0,FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-    CLIP_DEFAULT_PRECIS, 0, VARIABLE_PITCH, TEXT ( "Courier New"));
-    (void) SetTextColor ( hdcWindow, RGB (255,255,255));
-    (void) SetBkMode( hdcWindow, TRANSPARENT);
-    SelectObject (hdcWindow, hFont);
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory); // Show image  
      
-    // Paint the hotspots
-    for (int i=0; i<MAX_KEYPAD_PINS; i++)
-      pin[i]->Paint(hdcMemory,hdcWindow);
-  }    
+  // Paint the pins
+  for (int i=0; i<MAX_KEYPAD_PINS; i++)
+    pin[i]->Paint(hdc, ps, hdcMemory);
 }
 
 void KeypadDevice::HandleMouseUp (HWND hWnd)
@@ -196,14 +215,6 @@ Pin * KeypadDevice::PortSelected(){
   }	
 	  
   return p;  
-}
-
-void KeypadDevice::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  
-  for (int i=0; i<MAX_KEYPAD_PINS; i++)
-    pin[i]->PaintStart ( _hdcWindow, _hdcMemory, _ps);
 }
 
 bool KeypadDevice::IsSet()

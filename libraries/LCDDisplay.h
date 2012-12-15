@@ -10,10 +10,9 @@ class LCDDisplay:public ConnectedComponent
     LCDDisplay(int, int); 
     // Destructor
     ~LCDDisplay();
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd);  
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );	 
-    void print (char * ch);  
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);  
+	void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);
+	void print (char * ch);  
 	void print (int value);
     void clear();
     bool clearTheText;
@@ -31,7 +30,8 @@ class LCDDisplay:public ConnectedComponent
  
   private:
     bool offOn;
-    char screen[80];
+    static int const MAX_SCREEN_CHARS = 80;
+    char screen[MAX_SCREEN_CHARS];
     void showScreen(HDC hdcWindow);
     Pin * pin[MAX_LCD_PINS];
     
@@ -43,6 +43,10 @@ class LCDDisplay:public ConnectedComponent
 
     HBITMAP       hbmBlackDot;
     BITMAP        bmBlackDot;
+    
+    int col;
+	int row;
+    
 };
 
 #endif

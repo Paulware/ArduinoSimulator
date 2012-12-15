@@ -12,7 +12,7 @@ KeyboardMonitor::KeyboardMonitor():Component()
 void KeyboardMonitor::Paint(HWND hWnd, HDC &hdcWindow, HDC &hdcMemory, PAINTSTRUCT &ps)
 {
    
-  Component::Paint (hWnd); // Show Arduino image    
+  Component::Paint (hdcWindow, ps, hdcMemory); // Show image    
   // Component::PaintEnd ( &hdcMemory, hWnd, &ps);
 }
 

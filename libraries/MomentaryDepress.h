@@ -9,8 +9,7 @@ class MomentaryDepress:public ConnectedComponent
     // Destructor
     ~MomentaryDepress();
     Pin * PortSelected ();    
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd);
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);
     void HandleMouseDown (HWND hWnd, int _x, int _y);                      
     void HandleMouseMove (HWND hWnd, int _x, int _y);                      
     void HandleMouseUp (HWND hWnd); 
@@ -18,7 +17,8 @@ class MomentaryDepress:public ConnectedComponent
     void AddMenu ();       
     void MoveTo (int, int);  
     Pin * PinActive ();      
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap);
+    void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);
+    void CleanUp();
     bool IsSet();
     void SetPins();
     void Reset();

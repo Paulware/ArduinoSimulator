@@ -10,11 +10,11 @@ struct PinValueType
   int resistance;
 };
 
-class Pin
+class Pin: public Component
 {
   public:          
     // Constructor
-    Pin(Component *); 
+    Pin(); 
     ~Pin(); // Clean up the connection
     void SetName(char *);
 	int GetValue();
@@ -24,33 +24,28 @@ class Pin
 	void WriteValue (int value, int resistance);
 	void WriteValue (int value);
 	void Connect ( Pin * pin );
-	void LoadBMap ( HINSTANCE);
-	void LoadBMap ( HINSTANCE, char *);
     void HandleMouseMove (HWND,int,int);
-    void PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTRUCT & ps);
-    void Paint(HDC hdcMemory, HDC hdcWindow);
+    void Init (HWND, HINSTANCE);
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);
     void Select (bool);
     void MoveTo (int, int);
     static void BestValue (PinValueType &v1, PinValueType &v2);
-    
-    int x;
-    int y;
     int xOffset;
     int yOffset;
-    BITMAP bm;
     bool IsSelected();
     bool isSelected;
     char * name;   
-    bool isActive;    // Cannot use components because parent has many pins
-    Component * parent;
+    bool isActive; 
     
     PinValueType value;
     PinValueType constValue;
     
 
   private:
-    HBITMAP hbm;
-    HINSTANCE myInst;
+    BITMAP redBm;
+    HBITMAP hRedBm;
+    BITMAP blackBm;
+    HBITMAP hBlackBm;
 };
 #endif
 

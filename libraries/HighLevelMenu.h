@@ -2,6 +2,8 @@
 #define HIGHLEVELMENU_H
 #include "ConnectedComponent.h"
 #include "ViewConnections.h"
+#include <vector>
+#include <string>
 
 #define MAX_COMPONENTS 100
 class HighLevelMenu:public Component
@@ -18,7 +20,7 @@ class HighLevelMenu:public Component
     void HandleMouseMove (HWND hWnd, int x, int y);
     void HandleMenu (int command); 
     void AddMenu ();
-    void AddComponent (char * typeName, int x, int y);
+    void AddComponent (int index, char * typeName, int x, int y);
     void HandleMouseDown (HWND hWnd, int x, int y);
     void HandleMouseUp (HWND hWnd);
     void HandleKeyUp ( int scanCode); 
@@ -31,18 +33,22 @@ class HighLevelMenu:public Component
     void DigitalWrite (int,int);
     ConnectedComponent * FindComponent (int,int );
     ConnectedComponent * FindComponent ( char * typeName);
+    int FindComponentName (std::string str);
  
     ConnectedComponent * components[MAX_COMPONENTS];   
     void lcdPrint ( char * ch);
     void lcdPrint ( int value);   
     void lcdClear ();
     void Reset ();
-        
+    Pin * FindOtherPin ( Pin *);
+    void TroubleshootPins ();
+            
   private:
     int numComponents;
     int selectedItem;      
     ViewConnections * viewConnections;
     char projectFilename[80];
+    std::vector<std::string> ComponentNames;
 };
 
 #endif

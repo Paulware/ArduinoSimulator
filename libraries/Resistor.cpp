@@ -2,8 +2,8 @@
 #include "HighLevelMenu.h"
 Resistor::Resistor(int _x, int _y, int _resistance):ConnectedComponent(_x,_y)
 { 
-  input = new Pin(this);
-  output = new Pin(this);
+  input = new Pin();
+  output = new Pin();
   input->xOffset = 0;
   input->yOffset = 5;
   output->xOffset = 67;
@@ -21,10 +21,6 @@ Resistor::Resistor(int _x, int _y, int _resistance):ConnectedComponent(_x,_y)
 
 Resistor::~Resistor()
 {
-	
-  HighLevelMenu::Instance()->DeleteConnection (input);
-  HighLevelMenu::Instance()->DeleteConnection (output);
-	
   delete (input);
   delete (output);
 }
@@ -110,13 +106,11 @@ void Resistor::HandleMouseUp (HWND hWnd)
   */
 }
 
-
 void Resistor::AddMenu ()
 {
   HMENU  MainMenu;
   HMENU  FileMenu;
      
-  //arduinoMain.setHwnd ( hwndOwner);
   MainMenu=CreateMenu();
   FileMenu=CreateMenu();
   InsertMenu(MainMenu,ID_Edit,MF_POPUP,(UINT_PTR)FileMenu,"Help");
@@ -127,30 +121,20 @@ void Resistor::AddMenu ()
   (void) SetMenu(windowHandle,MainMenu);
 }
 
-void Resistor::Paint(HWND hWnd)
-{
-  bool connected; 
-  int buttonX = 29;
-  int buttonY = 10;
+void Resistor::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
+{     
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory);  
     
-  if (hWnd == windowHandle)
-  {
-    ConnectedComponent::Paint (hWnd); // Show Arduino image    
-    
-    // Paint the hotspot
-    input->Paint(hdcMemory,hdcWindow);
-    output->Paint(hdcMemory,hdcWindow);
-    
-  }  
+  // Paint the pins (This is why virtual function is necessary)  
+  input->Paint(hdc, ps, hdcMemory);
+  output->Paint(hdc, ps, hdcMemory);
 }
 
-void Resistor::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap)
-{
-   // ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );          
-   ConnectedComponent::LoadBMap ("TENKOHMS", hBitMap, bitMap );          
-   
-   output->LoadBMap (g_hInst);
-   input->LoadBMap (g_hInst);   
+void Resistor::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{   
+   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+   output->Init (windowHandle, g_hInst);
+   input->Init (windowHandle, g_hInst);   
 }
 
 Pin * Resistor::PortSelected(){
@@ -162,18 +146,9 @@ Pin * Resistor::PortSelected(){
   return pin;  
 }
 
-void Resistor::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  
-  input->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  output->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-}
-
 // [_x,_y] are absolute values
 void Resistor::MoveTo (int _x, int _y)
-{
-	
+{	
   x = _x-xOffset;
   y = _y-yOffset; // Get the x location of the LED after adjusting for mouse click location
   input->MoveTo (x + input->xOffset, 

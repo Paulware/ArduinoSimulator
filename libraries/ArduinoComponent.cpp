@@ -6,14 +6,14 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
   char name[] = "d00";
   x = _x;
   y = _y;
-  gnd = new Pin(this);
+  gnd = new Pin();
   gnd->constValue.value = 0;
   gnd->xOffset = 310;
   gnd->yOffset = 319;
   gnd->x = x + gnd->xOffset;
   gnd->y = y + gnd->yOffset;
   gnd->SetName ("gnd");
-  power = new Pin (this);
+  power = new Pin ();
   power->constValue.value = 1;
   power->xOffset = 278;
   power->yOffset = 319;
@@ -22,7 +22,7 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
   power->SetName ("5v");
   for (int i=0; i<MAX_DIGITAL_VALUES; i++)
   {
-    d[i] = new Pin(this);  
+    d[i] = new Pin();  
     d[i]->WriteValue (0); //TODO if this is an output const Value can = 0.
     name[1] = '0' + (i/10);
     name[2] = '0' + (i%10);
@@ -129,29 +129,24 @@ Pin * ArduinoComponent::GetConnection (int which)
   return pin;
 }
 
-void ArduinoComponent::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  gnd->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  power->PaintStart ( _hdcWindow,_hdcMemory, _ps);
-  // Show image of digitalValues
-  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-    d[i]->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-}
-
-void ArduinoComponent::Paint(HWND hWnd)
-{
-  if (hWnd == windowHandle)
-  {
-    ConnectedComponent::Paint (hWnd); // Show Arduino image    
+void ArduinoComponent::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
+{  
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory);    
        
-    for (int i=0; i<MAX_DIGITAL_VALUES;i++)
-      d[i]->Paint (hdcMemory,hdcWindow);
+  for (int i=0; i<MAX_DIGITAL_VALUES;i++)
+  {
+    d[i]->g_hInst = g_hInst;
+    d[i]->windowHandle = windowHandle;  	
+    d[i]->Paint (hdc, ps, hdcMemory);
+  }
     
-    // Paint the hotspots
-    gnd->Paint(hdcMemory,hdcWindow);
-    power->Paint(hdcMemory,hdcWindow);
-  } 
+  // Paint the hotspots
+  gnd->g_hInst = g_hInst;
+  gnd->windowHandle = windowHandle;  	
+  gnd->Paint(hdc, ps, hdcMemory);
+  power->g_hInst = g_hInst;
+  power->windowHandle = windowHandle;  	
+  power->Paint(hdc, ps, hdcMemory);
 }
 
 void ArduinoComponent::SaveYourself (FILE * fp)
@@ -184,16 +179,23 @@ void ArduinoComponent::AddMenu ()
   (void) SetMenu(windowHandle,MainMenu);
 }
 
-void ArduinoComponent::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
+void ArduinoComponent::CleanUp()
 {
-   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );     
-   ConnectedComponent::LoadBMap ("REDDOT", hbmRedDot, bmRedDot);
-   ConnectedComponent::LoadBMap ("BLACKDOT", hbmBlackDot, bmBlackDot); 
-   gnd->LoadBMap (g_hInst);
-   power->LoadBMap (g_hInst);   
+  ConnectedComponent::CleanUp();
+  gnd->CleanUp();
+  power->CleanUp();
+  for (int i=0; i<MAX_DIGITAL_VALUES; i++)
+    d[i]->CleanUp();
+}
+
+void ArduinoComponent::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{
+   ConnectedComponent::Init (_windowHandle, _g_hInst, resource);
+   gnd->Init (windowHandle, g_hInst);
+   power->Init (windowHandle, g_hInst);   
    // Show image of digitalValues
    for (int i=0; i<MAX_DIGITAL_VALUES; i++)
-     d[i]->LoadBMap (g_hInst);   
+     d[i]->Init (windowHandle, g_hInst);   
 }
 
 // Move the ports and any connections

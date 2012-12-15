@@ -2,8 +2,8 @@
 #include "HighLevelMenu.h"
 MomentaryDepress::MomentaryDepress(int _x, int _y):ConnectedComponent(_x,_y)
 { 
-  input = new Pin(this);
-  output = new Pin(this);
+  input = new Pin();
+  output = new Pin();
   input->xOffset = 31;
   input->yOffset = 87;
   output->xOffset = 82;
@@ -22,8 +22,6 @@ MomentaryDepress::MomentaryDepress(int _x, int _y):ConnectedComponent(_x,_y)
 
 MomentaryDepress::~MomentaryDepress()
 {
-  HighLevelMenu::Instance()->DeleteConnection (input);
-  HighLevelMenu::Instance()->DeleteConnection (output);
   delete (input);
   delete (output);
 }
@@ -75,6 +73,7 @@ void MomentaryDepress::HandleMouseDown (HWND hWnd, int _x, int _y)
     else if (input->GetValue () != -1)
 	  output->WriteValue ( input->GetValue());  
   }  
+  Refresh();
 }
 
 bool MomentaryDepress::IsSet()
@@ -119,36 +118,31 @@ void MomentaryDepress::AddMenu ()
   (void) SetMenu(windowHandle,MainMenu);
 }
 
-void MomentaryDepress::Paint(HWND hWnd)
+void MomentaryDepress::CleanUp()
 {
-  bool connected; 
-  int buttonX = 29;
-  int buttonY = 10;
-    
-  if (hWnd == windowHandle)
-  {
-    ConnectedComponent::Paint (hWnd); // Show Arduino image    
-
-    SelectObject(hdcMemory, hbmDepressed);
-     
-    BitBlt(hdcWindow, x+buttonX,y+buttonY, bmDepressed.bmWidth, bmDepressed.bmHeight, hdcMemory, 0, 0, SRCAND);
-    BitBlt(hdcWindow, x+buttonX,y+buttonY, bmDepressed.bmWidth, bmDepressed.bmHeight, hdcMemory, 0, 0, SRCPAINT);     
-    
-    // Paint the hotspot
-    input->Paint(hdcMemory,hdcWindow);
-    output->Paint(hdcMemory,hdcWindow);
-    
-  }  
+  ConnectedComponent::CleanUp();
+  input->CleanUp();
+  output->CleanUp();
 }
 
-void MomentaryDepress::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap)
+void MomentaryDepress::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 {
-   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );          
-   ConnectedComponent::LoadBMap ("DEPRESSED", hbmDepressed, bmDepressed);
-   
-   output->LoadBMap (g_hInst);
-   input->LoadBMap (g_hInst);
-   
+  if (depressed)   
+    Component::Init (windowHandle, g_hInst, "DEPRESSEDSWITCH");
+  else
+    Component::Init (windowHandle, g_hInst, "MOMENTARYDEPRESS");
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory); // Show image    
+    
+  // Paint the hotspot
+  input->Paint(hdc, ps, hdcMemory);
+  output->Paint(hdc, ps, hdcMemory);    
+}
+
+void MomentaryDepress::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{   
+   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+   output->Init (windowHandle, g_hInst);
+   input->Init (windowHandle, g_hInst);   
 }
 
 Pin * MomentaryDepress::PortSelected(){
@@ -158,14 +152,6 @@ Pin * MomentaryDepress::PortSelected(){
   if (output->isSelected)
   	pin = output;
   return pin;  
-}
-
-void MomentaryDepress::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  
-  input->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  output->PaintStart ( _hdcWindow, _hdcMemory, _ps);
 }
 
 // [_x,_y] are absolute values

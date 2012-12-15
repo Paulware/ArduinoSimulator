@@ -8,8 +8,7 @@ class Led:public ConnectedComponent
     ~Led();
     Pin * PortSelected ();
     void Select (bool);
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd);                      
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);                      
     void HandleMenu ( int command );
     void HandleMouseMove (HWND hWnd, int _x, int _y);  
     void HandleMouseDown (HWND hWnd, int _x, int _y);  
@@ -17,13 +16,14 @@ class Led:public ConnectedComponent
     void Reset();
     bool IsSet();
     void MoveTo (int, int);  
+	void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);    
     Pin * PinActive ();      
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );
     Pin * gnd;
     Pin * power;
     void AddMenu ();
     void SaveYourself (FILE * fp);    
     Pin * FindPort ( char *);    
+    void CleanUp();
 	 	    
   private:
     bool offOn;

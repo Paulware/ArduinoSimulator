@@ -1,9 +1,8 @@
 #include "Connection.h"
-Connection::Connection(Component * _component1, Pin * _pin1, Pin * _pin2)
+Connection::Connection(Pin * _pin1, Pin * _pin2)
 { 
   pin1 = _pin1;
   pin2 = _pin2;
-  component1 = _component1;
   x1 = pin1->x;
   y1 = pin1->y;
   x2 = pin2->x;
@@ -11,22 +10,29 @@ Connection::Connection(Component * _component1, Pin * _pin1, Pin * _pin2)
   line = new Line (x1,y1,x2,y2);
 }
 
-void Connection::LoadBMap (HINSTANCE hInst )
+Pin * Connection::OtherPin (Pin * pin)
 {
-  if (line)
-    line->LoadBMap (hInst);
+  Pin * otherPin = 0;
+  if (pin1 == pin)
+    otherPin = pin2;  
+  else if (pin2 == pin)
+    otherPin = pin1;
+  return otherPin;
 }
 
-void Connection::Paint ( HWND hWnd)
-{
-  Component::Paint (hWnd);
-  line->Paint (hWnd);
-}
-
-void Connection::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
+void Connection::Init (HWND hWnd, HINSTANCE hInst)
 {	
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  line->PaintStart ( _hdcWindow, _hdcMemory, _ps);
+  line->Init (hWnd, hInst);  
+}
+
+void Connection::CleanUp()
+{
+  line->CleanUp();
+}
+
+void Connection::Paint (HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
+{
+  line->Paint (_hdc, _ps, _hdcMemory);
 }
 
 void Connection::Move()
@@ -46,8 +52,8 @@ Connection::~Connection()
 
 void Connection::SaveConnection(FILE * fp)
 {
-  pin1->parent->SaveYourself (fp);
+  pin1->SaveYourself (fp);
   fprintf ( fp, ",%s,", pin1->name);
-  pin2->parent->SaveYourself (fp);
+  pin2->SaveYourself (fp);
   fprintf ( fp, ",%s\n", pin2->name);
 }

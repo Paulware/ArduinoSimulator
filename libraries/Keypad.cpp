@@ -16,6 +16,10 @@ Keypad::Keypad(char *userKeymap, byte *row, byte *col, byte numRows, byte numCol
     initializePins();
 
 	startTime = 0;
+	for (int i=0; i<numRows; i++)
+	  KeypadDevice::ConnectPin (row[numRows-i-1]);
+	for (int i=0; i<numCols; i++)
+	  KeypadDevice::ConnectPin (col[numCols-i-1]);
 }
 
 void Keypad::begin(char *userKeymap) {

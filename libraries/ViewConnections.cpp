@@ -18,9 +18,6 @@ ViewConnections::~ViewConnections()
 // Set the hdcWindow, hdcMemory and ps for all the components 
 void ViewConnections::PaintStart ()
 {
-  hdcWindow = 0;
-  hdcMemory = 0;
-  Component::PaintStart (hdcWindow, hdcMemory, ps);
 }
 
 void ViewConnections::Paint(HWND hWnd)
@@ -46,21 +43,21 @@ void ViewConnections::Paint(HWND hWnd)
   while (connection = arduino->connections[index])
   {
   	name = connection->pin1->name;
-    TextOut (hdcWindow,  10, y,name,strlen(name));
+    TextOut (hdc,  10, y,name,strlen(name));
     
     name = connection->pin2->name;
-    TextOut (hdcWindow, 100, y,name,strlen(name));
+    TextOut (hdc, 100, y,name,strlen(name));
     
     itoa (connection->pin1->GetValue(), value, 10);
-    TextOut (hdcWindow, 190, y, value, strlen (value));
+    TextOut (hdc, 190, y, value, strlen (value));
     
     itoa (connection->pin2->GetValue(), value, 10);
-    TextOut (hdcWindow, 280, y, value, strlen (value));
+    TextOut (hdc, 280, y, value, strlen (value));
     y += 20;
     index++;
   }
   
-  PaintEnd ();
+  //PaintEnd ();
 }
 
 HWND ViewConnections::DrawWindow (HINSTANCE hInst)

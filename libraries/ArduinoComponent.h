@@ -15,9 +15,7 @@ class ArduinoComponent:public ConnectedComponent
 	Pin * d[MAX_DIGITAL_VALUES];
 	Pin * GetConnection (int);
     void Select (bool);
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );    
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint (HWND hWnd);    
+    void Paint (HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);    
     void digitalWrite (int, int); 
     void MoveTo (int _x, int _y); 
     void AddMenu ();    
@@ -27,19 +25,14 @@ class ArduinoComponent:public ConnectedComponent
     Pin * FindPort ( char *); 
     bool IsSet();
     void Reset();	   
-        
+    void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);    
+	void CleanUp();    
+    
     Pin * PortSelected();
     Pin * PinActive();	  
     
   private:
-    int redDotX,redDotY,blackDotX,blackDotY;
-
-    HBITMAP       hbmRedDot;
-    BITMAP        bmRedDot;
-
-    HBITMAP       hbmBlackDot;
-    BITMAP        bmBlackDot;
-    
+    int redDotX,redDotY,blackDotX,blackDotY;   
     struct digitalInfo
     {
       int x;

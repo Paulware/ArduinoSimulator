@@ -7,7 +7,7 @@ SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
   char segmentName[] = "segment[i]";
   x = _x;
   y = _y;
-  gnd = new Pin(this);
+  gnd = new Pin();
   gnd->xOffset = 85;
   gnd->yOffset = 63;
   gnd->x = x + gnd->xOffset;
@@ -16,7 +16,7 @@ SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
   
   for (int i=0; i<7;i++)
   {
-    segment[i] = new Pin(this);
+    segment[i] = new Pin();
 	segment[i]->WriteValue (0);
 	segment[i]->xOffset = xs[i];
 	segment[i]->yOffset = ys[i];
@@ -124,11 +124,6 @@ Pin * SevenSeg::PinActive ()
 
 SevenSeg::~SevenSeg()
 {
-
-  HighLevelMenu::Instance()->DeleteConnection (gnd);	
-  for (int i=0; i<7; i++)
-    HighLevelMenu::Instance()->DeleteConnection (segment[i]);
-	
   delete (gnd);                    
   for (int i=0; i<7; i++)
     delete (segment[i]);
@@ -178,7 +173,14 @@ void SevenSeg::Reset()
     segment[i]->WriteValue (-1);	
 }
 
-void SevenSeg::Paint(HWND hWnd)
+void SevenSeg::CleanUp()
+{
+  ConnectedComponent::CleanUp();
+  for (int i=0; i<7; i++)
+    segment[i]->CleanUp();
+}
+
+void SevenSeg::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 {
   int width;
   int height;
@@ -186,57 +188,45 @@ void SevenSeg::Paint(HWND hWnd)
   bool offOn;
   int pinValue;
    
-  if (hWnd == windowHandle)
-  {
-    ConnectedComponent::Paint (hWnd); // Show Arduino image    
-    for (int i=0; i<7; i++)
-    {  
-      vertical = segmentValues[i].horizontalVertical;
-      offOn = false;
-      pinValue = segment[i]->GetValue();
-      if (pinValue == 1)
-        pinValue = 1;
-      if ((gnd->GetValue() == 0) && (pinValue == 1))
-        offOn = true;
-      if (offOn)  
-      {
-        if (vertical)                          
-        { 
-          SelectObject(hdcMemory, hbmUpDown);
-          width = bmUpDown.bmWidth;
-          height = bmUpDown.bmHeight;
-        }  
-        else
-        { 
-          SelectObject(hdcMemory, hbmLeftRight);
-          width = bmLeftRight.bmWidth;
-          height = bmLeftRight.bmHeight;
-        }  
-        BitBlt(hdcWindow, segmentValues[i].x + x,segmentValues[i].y + y, width, height, hdcMemory, 0, 0, SRCAND);
-        BitBlt(hdcWindow, segmentValues[i].x + x,segmentValues[i].y +y, width, height, hdcMemory, 0, 0, SRCPAINT);
-      }
-      segment[i]->Paint (hdcMemory,hdcWindow);        
-    }
-    gnd->Paint(hdcMemory,hdcWindow);
-    
-  }    
-}
-
-void SevenSeg::LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap )
-{
-   ConnectedComponent::LoadBMap (bmpResource, hBitMap, bitMap );     
-   ConnectedComponent::LoadBMap ("LEFTRIGHT", hbmLeftRight, bmLeftRight);
-   ConnectedComponent::LoadBMap ("UPDOWN", hbmUpDown, bmUpDown); 
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory); // Show background image   
    
-   gnd->LoadBMap (g_hInst);
-   for (int i=0; i<7;i++)
-    segment[i]->LoadBMap (g_hInst);
+  for (int i=0; i<7; i++)
+  {  
+    vertical = segmentValues[i].horizontalVertical;
+    offOn = false;
+    pinValue = segment[i]->GetValue();
+    if (pinValue == 1)
+      pinValue = 1;
+    if ((gnd->GetValue() == 0) && (pinValue == 1))
+      offOn = true;
+    if (offOn)  
+    {
+      if (vertical)                          
+      { 
+        SelectObject(hdcMemory, hbmUpDown);
+        width = bmUpDown.bmWidth;
+        height = bmUpDown.bmHeight;
+      }  
+      else
+      { 
+        SelectObject(hdcMemory, hbmLeftRight);
+        width = bmLeftRight.bmWidth;
+        height = bmLeftRight.bmHeight;
+      }  
+      BitBlt(hdc, segmentValues[i].x + x,segmentValues[i].y + y, width, height, hdcMemory, 0, 0, SRCAND);
+      BitBlt(hdc, segmentValues[i].x + x,segmentValues[i].y +y, width, height, hdcMemory, 0, 0, SRCPAINT);
+    }
+    segment[i]->Paint (hdc, ps, hdcMemory);        
+  }
+  gnd->Paint(hdc, ps, hdcMemory);
+    
 }
-
-HWND SevenSeg::DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
-                           int x , int y, int width, int height)
-{                           
-   HWND hWnd = ConnectedComponent::DrawWindow(title, hInst, "SEVENSEGMENT", x, y, 100, 160);  
+void SevenSeg::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
+{   
+   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+   gnd->Init (windowHandle, g_hInst);
+   for (int i=0; i<7;i++)
+    segment[i]->Init (windowHandle, g_hInst);
 }
 
 Pin * SevenSeg::PortSelected(){
@@ -252,15 +242,6 @@ Pin * SevenSeg::PortSelected(){
 	  }	
 	  
   return pin;  
-}
-
-void SevenSeg::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{
-  ConnectedComponent::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  
-  gnd->PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  for (int i=0; i<7; i++)
-    segment[i]->PaintStart ( _hdcWindow, _hdcMemory, _ps);
 }
 
 

@@ -80,10 +80,7 @@ void bitWrite (unsigned int & value, int bit, int val)
      value &= ~values[bit];
 }
 
-
-
-#include "example.ino"         // Actual arduino script
-
+#include "examples/KeypadDisplay.ino"         // Actual arduino script
 void PaintComponents(HWND hWnd)
 {
   highLevelMenu.Paint (hWnd);

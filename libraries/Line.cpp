@@ -57,30 +57,21 @@ void Line::MoveTo (int _x1, int _y1, int _x2, int _y2)
   dot[DOTSPERLINE-1]->MoveTo ( x2,y2);
 }
 
-void Line::PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps)
-{	
-  Component::PaintStart ( _hdcWindow, _hdcMemory, _ps);
-  for (int i=0; i<DOTSPERLINE; i++)
-    dot[i]->PaintStart ( hdcWindow,hdcMemory,ps);      
-}
-
-void Line::Paint(HWND hWnd)
+void Line::CleanUp()
 {
-  bool ledOn; 
-   
-  // Paint the background
-  Component::Paint (hWnd); 
-	
   for (int i=0; i<DOTSPERLINE; i++)	
-    dot[i]->Paint (hWnd);
+    dot[i]->CleanUp();
 }
 
-void Line::LoadBMap (HINSTANCE hInst)
-{	
-  for (int i=0; i<DOTSPERLINE; i++)
-  {
-  	dot[i]->Show (hInst, windowHandle, "DOT");
-    dot[i]->CenterYourself();
-  }
+void Line::Init (HWND _windowHandle, HINSTANCE _g_hInst)
+{   
+  Component::Init ( _windowHandle, _g_hInst, "");
+  for (int i=0; i<DOTSPERLINE; i++)	
+    dot[i]->Init (windowHandle, g_hInst, "DOT");
 }
 
+void Line::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
+{
+  for (int i=0; i<DOTSPERLINE; i++)	
+    dot[i]->Paint (_hdc, _ps, _hdcMemory);
+}

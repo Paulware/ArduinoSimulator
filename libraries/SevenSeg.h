@@ -8,11 +8,9 @@ class SevenSeg:public ConnectedComponent
     SevenSeg(int,int); 
     // Destructor
     ~SevenSeg(); 
-    void LoadBMap (char * bmpResource, HBITMAP &hBitMap, BITMAP &bitMap );
-    HWND DrawWindow (char * title, HINSTANCE hInst, char * bmpResource, 
-                     int x , int y, int width, int height);
-    void PaintStart ( HDC & _hdcWindow, HDC & _hdcMemory, PAINTSTRUCT &_ps);
-    void Paint(HWND hWnd);                      
+    void Init (HWND _windowHandle, HINSTANCE _g_hInst, char *);
+    void CleanUp();    
+    void Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory);                      
     void AddMenu();
     void HandleMenu ( int command );
     void HandleMouseMove (HWND hWnd, int _x, int _y);  

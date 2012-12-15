@@ -16,13 +16,25 @@ ConnectedComponent::~ConnectedComponent()
     delete (connection);
 }
 
-void ConnectedComponent::PaintStart (HDC & _hdcWindow, HDC &_hdcMemory, PAINTSTRUCT & ps)
+void ConnectedComponent::CleanUp()
+{
+  Connection * connection;	
+  int index = 0;
+  Component::CleanUp();
+  while ( connection = connections[index++])
+    connection->CleanUp();
+}
+
+Pin * ConnectedComponent::FindOtherPin (Pin * pin)
 {
   Connection * connection;
   int index = 0;
-  Component::PaintStart (_hdcWindow, _hdcMemory, ps );
+  Pin * otherPin = 0;
   while (connection = connections[index++])
-  	connection ->PaintStart (_hdcWindow, _hdcMemory, ps); 
+    if (otherPin = connection->OtherPin (pin))
+	  break;  
+	  
+  return otherPin;	
 }
 
 void ConnectedComponent::DeleteConnection (Pin * pin)
@@ -59,14 +71,22 @@ void ConnectedComponent::Move()
     connection->Move ();
 }
 
-void ConnectedComponent::Paint (HWND hWnd)
+void ConnectedComponent::Paint (HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 {
   Connection * connection;
   int index = 0;
   
-  Component::Paint (hWnd);
+  Component::Paint (_hdc, _ps, _hdcMemory);
+  
   while (connection = connections[index++])
-  	connection ->Paint(hWnd); 
+  {
+  	connection ->Paint(hdc, ps, hdcMemory );
+  }
+  
+}
+void ConnectedComponent::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource) {
+  Component::Init (_windowHandle, _g_hInst, resource);
+  // TODO: Call Init for the connection or maybe do this when created
 }
 
 // Set all the pins that can be determined
@@ -96,16 +116,15 @@ void ConnectedComponent::SetPins()
   }
 }
 
-void ConnectedComponent::Connect (Pin * pin1, Pin * pin2, HINSTANCE hInst)
+void ConnectedComponent::Connect (Pin * pin1, Pin * pin2)
 {
-  Connection * connection = new Connection (this, pin1, pin2);
-  connection->LoadBMap ( hInst);	
-  connections[numConnections++] = connection;
-    
+  Connection * connection = new Connection (pin1, pin2);
+  connection->Init (windowHandle, g_hInst);
+   
   pin1->Select (false); 
-  pin2->Select (false); 
+  pin2->Select (false);   
   
-  Refresh(); 
+  connections[numConnections++] = connection;
 }
 
 void ConnectedComponent::SaveConnections (FILE * fp)
