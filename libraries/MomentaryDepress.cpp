@@ -2,8 +2,8 @@
 #include "HighLevelMenu.h"
 MomentaryDepress::MomentaryDepress(int _x, int _y):ConnectedComponent(_x,_y)
 { 
-  input = new Pin();
-  output = new Pin();
+  input = new Pin(this);
+  output = new Pin(this);
   input->xOffset = 31;
   input->yOffset = 87;
   output->xOffset = 82;

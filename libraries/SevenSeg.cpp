@@ -7,7 +7,7 @@ SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
   char segmentName[] = "segment[i]";
   x = _x;
   y = _y;
-  gnd = new Pin();
+  gnd = new Pin(this);
   gnd->xOffset = 85;
   gnd->yOffset = 63;
   gnd->x = x + gnd->xOffset;
@@ -16,7 +16,7 @@ SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
   
   for (int i=0; i<7;i++)
   {
-    segment[i] = new Pin();
+    segment[i] = new Pin(this);
 	segment[i]->WriteValue (0);
 	segment[i]->xOffset = xs[i];
 	segment[i]->yOffset = ys[i];
@@ -24,6 +24,8 @@ SevenSeg::SevenSeg(int _x, int _y):ConnectedComponent(_x,_y)
 	segment[i]->y = y + segment[i]->yOffset;
 	segmentName[8] = '0' + i;
 	segment[i]->SetName (segmentName);
+	
+    displayedSegments[i] = new Component();	
   }	
   segmentValues[5] = (SegmentInfo) { 21,  27,  true};
   segmentValues[4] = (SegmentInfo) { 21,  75,  true};
@@ -201,20 +203,9 @@ void SevenSeg::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
       offOn = true;
     if (offOn)  
     {
-      if (vertical)                          
-      { 
-        SelectObject(hdcMemory, hbmUpDown);
-        width = bmUpDown.bmWidth;
-        height = bmUpDown.bmHeight;
-      }  
-      else
-      { 
-        SelectObject(hdcMemory, hbmLeftRight);
-        width = bmLeftRight.bmWidth;
-        height = bmLeftRight.bmHeight;
-      }  
-      BitBlt(hdc, segmentValues[i].x + x,segmentValues[i].y + y, width, height, hdcMemory, 0, 0, SRCAND);
-      BitBlt(hdc, segmentValues[i].x + x,segmentValues[i].y +y, width, height, hdcMemory, 0, 0, SRCPAINT);
+      displayedSegments[i]->x = segmentValues[i].x + x;
+      displayedSegments[i]->y = segmentValues[i].y + y;
+      displayedSegments[i]->Paint (hdc, ps, hdcMemory);
     }
     segment[i]->Paint (hdc, ps, hdcMemory);        
   }
@@ -223,10 +214,18 @@ void SevenSeg::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 }
 void SevenSeg::Init (HWND _windowHandle, HINSTANCE _g_hInst, char * resource)
 {   
-   ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
-   gnd->Init (windowHandle, g_hInst);
-   for (int i=0; i<7;i++)
+  ConnectedComponent::Init ( _windowHandle, _g_hInst, resource);
+  gnd->Init (windowHandle, g_hInst);
+  for (int i=0; i<7;i++)
     segment[i]->Init (windowHandle, g_hInst);
+
+  displayedSegments[0]->Init (windowHandle, g_hInst, "LEFTRIGHT");
+  displayedSegments[1]->Init (windowHandle, g_hInst, "UPDOWN");
+  displayedSegments[2]->Init (windowHandle, g_hInst, "UPDOWN");
+  displayedSegments[3]->Init (windowHandle, g_hInst, "LEFTRIGHT");
+  displayedSegments[4]->Init (windowHandle, g_hInst, "UPDOWN");
+  displayedSegments[5]->Init (windowHandle, g_hInst, "UPDOWN");
+  displayedSegments[6]->Init (windowHandle, g_hInst, "LEFTRIGHT");
 }
 
 Pin * SevenSeg::PortSelected(){

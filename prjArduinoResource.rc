@@ -1,7 +1,6 @@
 ARDUINOBMP BITMAP "images/arduinoBmp.bmp"
 REDDOT BITMAP "images/redDot.bmp"
 BLACKDOT BITMAP "images/blackDot.bmp"
-LEDBMP BITMAP "images/led.bmp"
 BLACKLED BITMAP "images/blackLed.bmp"
 REDLED BITMAP "images/redLed.bmp"
 MOMENTARYDEPRESS BITMAP "images/momentaryDepress.bmp"

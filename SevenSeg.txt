@@ -1,7 +1,7 @@
 Project Components
 Arduino,378,205
 Seven Segment,303,212
-Resistor10K,445,65
+Resistor10000,445,65
 MomentaryDepress,658,11
 Project Connections
 Arduino,378,205,d02,Seven Segment,303,212,segment[0]
@@ -13,6 +13,6 @@ Arduino,378,205,d13,Seven Segment,303,212,segment[5]
 Arduino,378,205,d14,Seven Segment,303,212,segment[6]
 Arduino,378,205,gnd,Seven Segment,303,212,gnd
 Arduino,378,205,gnd,MomentaryDepress,658,11,Switch Right
-Arduino,378,205,5v,Resistor10K,445,65,Left
+Arduino,378,205,5v,Resistor10000,445,65,Left
 Arduino,378,205,d10,MomentaryDepress,658,11,Switch Left
 Resistor10K,445,65,Right,MomentaryDepress,658,11,Switch Left

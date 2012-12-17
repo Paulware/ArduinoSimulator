@@ -1,8 +1,10 @@
 Project Components
 LCDDisplay,738,210
-Arduino,143,220
-MomentaryDepress,233,38
+Arduino,143,222
+MomentaryDepress,324,28
+Resistor10000,456,92
 Project Connections
-Arduino,143,220,d10,MomentaryDepress,233,38,Switch Right
-Arduino,143,220,5v,MomentaryDepress,233,38,Switch Right
-Arduino,143,220,gnd,MomentaryDepress,233,38,Switch Left
+Arduino,143,222,gnd,Resistor10000,456,92,Right
+Arduino,143,222,5v,MomentaryDepress,324,28,Switch Left
+Arduino,143,222,d10,MomentaryDepress,324,28,Switch Right
+MomentaryDepress,324,28,Switch Right,Resistor10000,456,92,Left

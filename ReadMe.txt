@@ -9,6 +9,7 @@ Arduino Libraries used:
 Online videos that demonstrate usage:
   http://www.youtube.com/watch?v=AdZ5GbDC1h0&feature=youtu.be
   http://www.youtube.com/watch?v=laa9VnRzuT0&feature=youtu.be
+  http://www.youtube.com/watch?v=42XPmHdkE8k&feature=youtu.be  
 Last Tested 12/6/2012 on Windows OS:
   Windows 8
 Last Tested with Arduino version

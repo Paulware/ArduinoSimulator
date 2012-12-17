@@ -15,7 +15,7 @@ LCDDisplay::LCDDisplay(int _x, int _y): ConnectedComponent(_x,_y)
   	pinName [4] = (i % 10) + '0';
   	pinName [3] = (i / 10) + '0';
   	
-    pin[i] = new Pin();
+    pin[i] = new Pin(this);
 	pin[i]->WriteValue (0);
 	if (i<3)  
 	  pin[i]->xOffset = 168 + i*11;

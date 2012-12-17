@@ -1,6 +1,6 @@
 #include "Pin.h"
 #include "HighLevelMenu.h"
-Pin::Pin():Component()
+Pin::Pin(Component * _parent):Component()
 { 
   value.value = -1;
   value.resistance = 0;
@@ -14,6 +14,7 @@ Pin::Pin():Component()
   isActive = false;
   isSelected = false;
   name = 0; 
+  parent = _parent;
 }
 
 Pin::~Pin()

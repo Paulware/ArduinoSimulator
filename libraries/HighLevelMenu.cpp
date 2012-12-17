@@ -26,7 +26,7 @@ HighLevelMenu::HighLevelMenu(ViewConnections * _viewConnections):Component()
   ComponentNames.push_back ("Arduino");
   ComponentNames.push_back ("Led");
   ComponentNames.push_back ("MomentaryDepress");
-  ComponentNames.push_back ("Resistor10K");
+  ComponentNames.push_back ("Resistor10000");
   ComponentNames.push_back ("LCDDisplay");
   ComponentNames.push_back ("Keypad");
   ComponentNames.push_back ("Seven Segment");
@@ -662,17 +662,28 @@ void HighLevelMenu::ReadProject(char * filename)
  	  	   component1 = FindComponent (line.x1,line.y1);
  	  	   component2 = FindComponent (line.x2,line.y2);
  	  	   if (!component1)
+ 	  	   {
  	  	  	 MessageBox (0,"Can't find component1","Oops",0);
+ 	  	  	 break;
+ 	       }
  	  	   else if (!component2)
+ 	  	   {
  	  	  	 MessageBox (0,"Can't find component2", "Oops", 0);
+ 	  	  	 break;
+ 	       }
  	  	   port1 = (Pin *)component1->FindPort (line.port1);
  	  	   if (!port1)
+ 	  	   {
  	  	  	 MessageBox (0,"Can't find port1","Oops", 0);
- 	  	   
- 	  	  	  
+ 	  	  	 break;
+ 	  	   }
+ 	  	   	  
  	  	   port2 = (Pin *)component2->FindPort (line.port2);
  	  	   if (!port2)
+ 	  	   {
  	  	     MessageBox (0,"Can't find port2","Oops",0);
+ 	  	     break;
+ 	       }
  	  	   else
  	  	   {
              component1->Connect (port1, port2);

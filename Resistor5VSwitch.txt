@@ -1,11 +1,11 @@
 Project Components
 Arduino,299,229
 MomentaryDepress,620,13
-Resistor10K,480,119
+Resistor10000,480,119
 Project Connections
-Arduino,299,229,5v,Resistor10K,480,119,Left
+Arduino,299,229,5v,Resistor10000,480,119,Left
 Arduino,299,229,5v,Arduino,299,229,5v
 Arduino,299,229,d10,MomentaryDepress,620,13,Switch Left
 Arduino,299,229,gnd,MomentaryDepress,620,13,Switch Right
-MomentaryDepress,620,13,Switch Left,Resistor10K,480,119,Right
+MomentaryDepress,620,13,Switch Left,Resistor10000,480,119,Right
 MomentaryDepress,620,13,Switch Left,MomentaryDepress,620,13,Switch Left

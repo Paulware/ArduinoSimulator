@@ -1,7 +1,7 @@
 [Project]
 FileName=prjArduinoSimulator.dev
 Name=prjArduinoSimulator
-UnitCount=52
+UnitCount=53
 Type=0
 Ver=2
 ObjFiles=
@@ -571,11 +571,11 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit53]
-FileName=libraries\utility\Key.cpp
+FileName=examples\example.ino
 CompileCpp=1
 Folder=prjArduinoSimulator
-Compile=1
-Link=1
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

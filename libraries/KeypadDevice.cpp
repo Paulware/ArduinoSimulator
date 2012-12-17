@@ -58,7 +58,7 @@ KeypadDevice::KeypadDevice(int _x, int _y): ConnectedComponent(_x,_y)
   
   for (int i=0; i<MAX_KEYPAD_PINS; i++)
   {
-    pin[i] = new Pin();
+    pin[i] = new Pin(this);
 	pin[i]->WriteValue (0);
     pin[i]->xOffset = 64 + i*13;
 	pin[i]->yOffset = 196;

@@ -2,8 +2,8 @@
 #include "HighLevelMenu.h"
 Resistor::Resistor(int _x, int _y, int _resistance):ConnectedComponent(_x,_y)
 { 
-  input = new Pin();
-  output = new Pin();
+  input = new Pin(this);
+  output = new Pin(this);
   input->xOffset = 0;
   input->yOffset = 5;
   output->xOffset = 67;
@@ -16,7 +16,8 @@ Resistor::Resistor(int _x, int _y, int _resistance):ConnectedComponent(_x,_y)
   output->y = y + output->yOffset; 
   input->SetName ("Left");
   output->SetName ("Right");  
-  SaveType ("Resistor");          
+  SaveType ("Resistor");  
+  resistance = _resistance;        
 }
 
 Resistor::~Resistor()
@@ -57,7 +58,7 @@ Pin * Resistor::FindPort ( char * port)
 
 void Resistor::SaveYourself (FILE * fp)
 {
-  fprintf ( fp, "Resistor,%d,%d",x,y);
+  fprintf ( fp, "Resistor%d,%d,%d",resistance,x,y);
 }
 
 void Resistor::HandleMouseDown (HWND hWnd, int _x, int _y)

@@ -14,7 +14,7 @@ class Pin: public Component
 {
   public:          
     // Constructor
-    Pin(); 
+    Pin(Component *); 
     ~Pin(); // Clean up the connection
     void SetName(char *);
 	int GetValue();
@@ -39,13 +39,9 @@ class Pin: public Component
     
     PinValueType value;
     PinValueType constValue;
-    
+ 
+    Component * parent;    
 
-  private:
-    BITMAP redBm;
-    HBITMAP hRedBm;
-    BITMAP blackBm;
-    HBITMAP hBlackBm;
 };
 #endif
 

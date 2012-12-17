@@ -52,8 +52,8 @@ Connection::~Connection()
 
 void Connection::SaveConnection(FILE * fp)
 {
-  pin1->SaveYourself (fp);
+  pin1->parent->SaveYourself (fp);
   fprintf ( fp, ",%s,", pin1->name);
-  pin2->SaveYourself (fp);
+  pin2->parent->SaveYourself (fp);
   fprintf ( fp, ",%s\n", pin2->name);
 }

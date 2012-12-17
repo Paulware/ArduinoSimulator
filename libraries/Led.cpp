@@ -2,8 +2,8 @@
 Led::Led(int _x, int _y):ConnectedComponent(_x,_y)
 { 
   offOn = false;
-  gnd = new Pin();
-  power = new Pin();
+  gnd = new Pin(this);
+  power = new Pin(this);
   gnd->WriteValue (-1);
   power->WriteValue (-1);
   power->xOffset = 38;
@@ -136,9 +136,6 @@ void Led::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 {
   bool ledOn; 
    
-  // Paint the background
-  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory);   
-
   // Paint the light on/off
   if (gnd->GetValue() == 1)
     ledOn = false;
@@ -152,11 +149,12 @@ void Led::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
     ledOn = true;  
       
   if (ledOn)
-    SelectObject(hdcMemory, hbmRedDot);
+    ConnectedComponent::Init ( windowHandle, g_hInst, "REDLED");
   else
-    SelectObject(hdcMemory, hbmBlackDot);     
-  BitBlt(hdc, x+31,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCAND);
-  BitBlt(hdc, x+31,y, bmRedDot.bmWidth, bmRedDot.bmHeight, hdcMemory, 0, 0, SRCPAINT);
+    ConnectedComponent::Init ( windowHandle, g_hInst, "BLACKLED");
+    
+  // Paint the background
+  ConnectedComponent::Paint (_hdc, _ps, _hdcMemory);
     
   // Paint the hotspots
   gnd->Paint(hdc, ps, hdcMemory);

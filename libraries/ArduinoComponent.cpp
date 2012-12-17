@@ -6,14 +6,14 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
   char name[] = "d00";
   x = _x;
   y = _y;
-  gnd = new Pin();
+  gnd = new Pin(this);
   gnd->constValue.value = 0;
   gnd->xOffset = 310;
   gnd->yOffset = 319;
   gnd->x = x + gnd->xOffset;
   gnd->y = y + gnd->yOffset;
   gnd->SetName ("gnd");
-  power = new Pin ();
+  power = new Pin (this);
   power->constValue.value = 1;
   power->xOffset = 278;
   power->yOffset = 319;
@@ -22,7 +22,7 @@ ArduinoComponent::ArduinoComponent(int _x, int _y): ConnectedComponent(_x, _y)
   power->SetName ("5v");
   for (int i=0; i<MAX_DIGITAL_VALUES; i++)
   {
-    d[i] = new Pin();  
+    d[i] = new Pin(this);  
     d[i]->WriteValue (0); //TODO if this is an output const Value can = 0.
     name[1] = '0' + (i/10);
     name[2] = '0' + (i%10);

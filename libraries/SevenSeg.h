@@ -39,8 +39,9 @@ class SevenSeg:public ConnectedComponent
       int y;
       bool horizontalVertical;
     };
-    SegmentInfo segmentValues[7];    
-
+    SegmentInfo segmentValues[7]; 
+	   
+    Component * displayedSegments[7];
 };
 
 #endif

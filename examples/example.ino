@@ -21,6 +21,7 @@ ArduinoBASIC arduinoBASIC = ArduinoBASIC ();
 DebugUtilities debugUtils;
 LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
 SevenSegment sevenSegment (2,3,4,5,6,13,14);
+#define BLINKYPIN 15
 
 
 #define NUMBER_OF_STEPS 25
@@ -63,7 +64,9 @@ void setup()
   lcd.begin(20, 4); // Specify how many columns and rows in the LCD unit
   lcd.clear();
   lcd.print("HD44780 LCD Ready   ");
+  pinMode (10,INPUT); // Switch
   d10 = digitalRead(10);
+  pinMode (BLINKYPIN,OUTPUT); // LED blink
 }
 
 void loop()
@@ -79,9 +82,9 @@ void loop()
   
   char key = keypad.getKey();
   
-  //if (key){
-  //  Serial.println(key);
-  //} 
+  if (key){
+    Serial.println(key);
+  } 
   
   switch (key)
   {
@@ -98,13 +101,12 @@ void loop()
   	default:
 	break;
   }
-   
   
   if (millis() > blinkyTime)
   {
   	blinkyTime = millis() + 1000;
   	blinky = 1 - blinky;
-  	digitalWrite (15,blinky);
+  	digitalWrite (BLINKYPIN,blinky);
   }
   
   if (runTimeout)

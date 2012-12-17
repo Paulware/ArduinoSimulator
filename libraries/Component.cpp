@@ -93,6 +93,7 @@ void Component::Paint(HDC _hdc, PAINTSTRUCT _ps, HDC _hdcMemory)
 void Component::SaveYourself (FILE * fp)
 {
   fprintf ( fp, "Generic Component saving itself");
+  MessageBox (0,"Implement SaveYourself for one of these components", "OOPS", 0);
 }
 
 void Component::MoveTo (int _x, int _y)
