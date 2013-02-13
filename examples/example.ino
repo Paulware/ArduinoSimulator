@@ -1,4 +1,3 @@
-#include <ArduinoBASIC.h>
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <SevenSegment.h>
@@ -17,15 +16,11 @@ byte colPins[COLS] = {9, 8, 7, 6}; //connect to the column pinouts of the keypad
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
   
-ArduinoBASIC arduinoBASIC = ArduinoBASIC ();
-DebugUtilities debugUtils;
 LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
 SevenSegment sevenSegment (2,3,4,5,6,13,14);
 #define BLINKYPIN 15
 
-
 #define NUMBER_OF_STEPS 25
-PSTRStrings eProgram = PSTRStrings(NUMBER_OF_STEPS);
 bool paused;
 
 void callback (int value)
@@ -39,26 +34,8 @@ void setup()
 {  
   bool d10;
   Serial.begin (115200);
-  debugUtils.printPSTR ( PSTR ( "Arduino BASIC...enter ? to display keywords\nTo use the Arduino IDE\n select 'Carriage return' rather than 'no line ending' in the Serial Monitor\n" ));
-  arduinoBASIC.init();
-  arduinoBASIC.eepromProgram.callback = callback;
-    
-  eProgram.addString ( PSTR ( "lcdDisplayInit"));  
-  eProgram.addString ( PSTR ( ":loop"));
-  eProgram.addString ( PSTR ( "ifA")); 
-  eProgram.addString ( PSTR ( "lcdDisplayClear"));
-  eProgram.addString ( PSTR ( "lcdDisplayPrintA is set"));
-  eProgram.addString ( PSTR ( "setA=0" )); 
-  eProgram.addString ( PSTR ( "else"));
-  eProgram.addString ( PSTR ( "lcdDisplayClear"));
-  eProgram.addString ( PSTR ( "lcdDisplayPrintA is not set"));
-  eProgram.addString ( PSTR ( "setA=1"));
-  eProgram.addString ( PSTR ( "endif"));
-  eProgram.addString ( PSTR ( "delay20"));
-  eProgram.addString ( PSTR ( "jumploop"));
-
   runTimeout = millis() + 10000;
-  Serial.println ( "Program will run in 10 seconds unless a key is pressed" );    
+  Serial.println ( "Load an example project.txt from the High Level Menu to show functionality" );    
   paused = true;  
   
   lcd.begin(20, 4); // Specify how many columns and rows in the LCD unit
@@ -78,8 +55,7 @@ void loop()
   static int blinky = 0;
   bool d10;
   static int segValue = 0;
-  
-  
+    
   char key = keypad.getKey();
   
   if (key){
@@ -109,17 +85,6 @@ void loop()
   	digitalWrite (BLINKYPIN,blinky);
   }
   
-  if (runTimeout)
-  {
-    if (millis() > runTimeout)
-    {
-      arduinoBASIC.eepromProgram.run();
-      runTimeout = 0;
-      paused = false;
-    }
-  }
-
-  
   d10 = digitalRead(10);
   if (!d10 && last10)
   {
@@ -130,16 +95,11 @@ void loop()
     sevenSegment.print(buttonCount %10);  	
   }
   last10 = d10;
-  
       
-  if (!paused)  
-    arduinoBASIC.eepromProgram.continueTest();
-    
   if (Serial.available())
   {
     runTimeout = 0;
     paused = false;
-    arduinoBASIC.handleChar(eProgram, Serial.read()); 
   }  
   
 }

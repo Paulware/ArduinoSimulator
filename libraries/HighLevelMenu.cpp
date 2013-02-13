@@ -7,6 +7,7 @@
 #include "ArduinoComponent.h"
 #include "Resistor.h"
 #include "KeypadDevice.h"
+#include "Pot.h"
 #include "Connection.h"
 #include <stdio.h>
 #include <Commdlg.h>
@@ -31,6 +32,7 @@ HighLevelMenu::HighLevelMenu(ViewConnections * _viewConnections):Component()
   ComponentNames.push_back ("Keypad");
   ComponentNames.push_back ("Seven Segment");
   ComponentNames.push_back ("Resistor220");
+  ComponentNames.push_back ("Pot");
 }
 
 HighLevelMenu::~HighLevelMenu()
@@ -225,6 +227,7 @@ void HighLevelMenu::AddMenu ()
     
   hAddMenu = CreatePopupMenu();
   InsertMenu (MainMenu, 0,         MF_POPUP|MF_BYPOSITION, (UINT_PTR)hAddMenu, "Add");
+  AppendMenu (hAddMenu, MF_STRING, ADDPOT,             "Pot" );
   AppendMenu (hAddMenu, MF_STRING, ADDLED,             "Led" );
   AppendMenu (hAddMenu, MF_STRING, ADDMOMENTARYSWITCH, "Depress Switch");
   AppendMenu (hAddMenu, MF_STRING, ADDSEVENSEGMENT,    "7Segment Display");
@@ -568,15 +571,20 @@ void HighLevelMenu::AddComponent (int index, char * typeName, int x, int y)
 	  components[numComponents++] = component;
   	  break;
   	case 6:
-      component = new SevenSeg ( x, y);
+      component = new SevenSeg (x, y);
 	  component->Init (windowHandle, g_hInst, "SEVENSEGMENT");
 	  components[numComponents++] = component;
       break;  
 	case 7:  
-      component = new Resistor ( x, y, 220);
+      component = new Resistor (x, y, 220);
 	  component->Init (windowHandle, g_hInst, "TWOTWENTYOHMS");
 	  components[numComponents++] = component;
       break;
+    case 8:
+      component = new Pot (x, y);
+	  component->Init (windowHandle, g_hInst, "POT");
+	  components[numComponents++] = component;
+      break;      
       /*
         arduino = (ArduinoComponent *)FindComponent ("Arduino");
         arduino->Connect (arduino->d[2], sevenSegment->segment[0], g_hInst);
@@ -819,6 +827,10 @@ void HighLevelMenu::HandleMenu (int command)
       AddComponent (7,"",0,0);
     break;
     
+    case ADDPOT:
+      AddComponent (8,"",0,0);
+    break;
+    
 	case SAVEAS:
 	  ofd.Save("Text\0*.TXT");		
 	  if (strlen (ofd.Filename()))
@@ -844,8 +856,7 @@ void HighLevelMenu::HandleMenu (int command)
 	
 	case TROUBLESHOOTCONNECTIONS:
 	  TroubleshootPins();
-	break;
-	  
+	break;	  
   }   
 }
 void HighLevelMenu::HandleMouseMove (HWND hWnd, int x, int y)
