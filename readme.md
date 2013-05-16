@@ -1,1 +1,1 @@
-This project has moved to the github location: Paulware/ArduinoSim
+This project has moved to the github location: https://github.com/Paulware/ArduinoDebugger/
