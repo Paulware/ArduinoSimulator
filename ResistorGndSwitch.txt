@@ -1,9 +1,0 @@
-Project Components
-Arduino,185,203
-MomentaryDepress,196,26
-Resistor10000,406,59
-Project Connections
-Arduino,185,203,d10,MomentaryDepress,196,26,Switch Right
-Arduino,185,203,gnd,Resistor10000,406,59,Right
-Arduino,185,203,5v,MomentaryDepress,196,26,Switch Left
-MomentaryDepress,196,26,Switch Right,Resistor10000,406,59,Left
